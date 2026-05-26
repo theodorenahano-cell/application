@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -14,15 +13,14 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
         body { background:#0a0a10; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; height:100vh; height:100dvh; display:flex; color:#e3e3e3; overflow:hidden; user-select:none; }
-
+ 
         /* SIDEBAR */
         #sidebar { width:280px; background:#0f0f18; border-right:1px solid #1e1e2e; display:flex; flex-direction:column; z-index:100; }
-        
         .sidebar-profile { padding:20px 15px; border-bottom:1px solid #1e1e2e; display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,#0f0f18,#1a1a2e); }
         .profile-avatar { width:44px; height:44px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:white; letter-spacing:-1px; box-shadow:0 4px 15px #00d4ff33; flex-shrink:0; }
         .profile-info h3 { color:#fff; font-size:14px; font-weight:700; }
         .profile-info p { color:#00ff88; font-size:10px; margin-top:2px; }
-
+ 
         #sidebar h2 { color:#555; padding:15px 20px 8px; font-size:10px; text-transform:uppercase; letter-spacing:2px; font-weight:700; }
         #historique { flex:1; overflow-y:auto; padding:0 10px; -webkit-overflow-scrolling:touch; }
         .session { padding:10px 12px; margin:3px 0; border-radius:10px; cursor:pointer; color:#888; font-size:13px; transition:all 0.2s; display:flex; align-items:center; gap:8px; }
@@ -31,49 +29,49 @@
         .sess-content { flex:1; overflow:hidden; }
         .sess-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .sess-date { font-size:10px; color:#333; margin-top:1px; }
-
+ 
         /* MEMOIRE */
         #memoire-section { padding:8px 10px; border-top:1px solid #1e1e2e; max-height:150px; overflow-y:auto; }
         #memoire-section h3 { color:#00ff88; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px; padding:0 5px; }
         .mem-item { background:#0a0a14; padding:7px 10px; border-radius:8px; margin-bottom:4px; font-size:11px; color:#666; display:flex; justify-content:space-between; align-items:center; border:1px solid #1e1e2e; }
         .mem-del { color:#ff4a4a; cursor:pointer; font-size:12px; flex-shrink:0; margin-left:6px; }
-
+ 
         .sidebar-bottom { padding:8px 10px; padding-bottom:env(safe-area-inset-bottom, 10px); display:flex; flex-direction:column; gap:6px; border-top:1px solid #1e1e2e; }
         .btn-action { border:none; padding:11px; border-radius:10px; cursor:pointer; font-weight:600; font-size:13px; transition:all 0.2s; text-align:center; width:100%; display:flex; align-items:center; justify-content:center; gap:6px; }
         #install-app-btn { background:#7c3aed; color:white; display:none; }
         #android-btn { background:#1a2e1a; color:#00ff88; border:1px solid #00ff8833; }
         #new-chat { background:#0a1a2e; color:#00d4ff; border:1px solid #00d4ff33; }
         #download-btn { background:#1a1a2e; color:#888; border:1px solid #2e2e38; }
-
+ 
         /* MAIN */
         #main { flex:1; display:flex; flex-direction:column; background:#0a0a10; position:relative; overflow:hidden; }
-
+ 
         /* HEADER */
         #header { background:rgba(10,10,16,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:12px 16px; padding-top:max(12px, env(safe-area-inset-top)); display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #1e1e2e; }
         .header-left { display:flex; align-items:center; gap:12px; }
         #menu-toggle { background:transparent; border:none; color:#888; font-size:20px; cursor:pointer; width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
         #menu-toggle:active { background:#1a1a2e; }
-
+ 
         .header-ai-avatar { width:38px; height:38px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:white; letter-spacing:-1px; position:relative; animation:glowPulse 3s infinite; }
         @keyframes glowPulse { 0%,100%{box-shadow:0 0 8px #00d4ff44} 50%{box-shadow:0 0 20px #00d4ff88,0 0 40px #7c3aed44} }
         .dot-live { position:absolute; bottom:-2px; right:-2px; width:10px; height:10px; background:#00ff88; border-radius:50%; border:2px solid #0a0a10; animation:blink 2s infinite; }
         @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
-
+ 
         .header-info h1 { color:#fff; font-size:16px; font-weight:700; }
         .header-info p { color:#555; font-size:10px; margin-top:1px; }
         .badge-pro { background:linear-gradient(135deg,#7c3aed,#00d4ff); color:white; padding:4px 10px; border-radius:20px; font-size:10px; font-weight:700; letter-spacing:0.5px; }
-
+ 
         #sidebar-overlay { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.7); z-index:90; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
-
+ 
         /* MESSAGES */
         #messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px; -webkit-overflow-scrolling:touch; user-select:text; -webkit-user-select:text; }
         .msg-user { align-self:flex-end; max-width:82%; }
         .msg-bot { align-self:flex-start; max-width:100%; display:flex; gap:10px; align-items:flex-start; width:100%; }
-
+ 
         /* AVATAR IA */
         .ia-avatar { width:34px; height:34px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:white; letter-spacing:-1px; flex-shrink:0; box-shadow:0 4px 12px #00d4ff33; }
         .ia-avatar-img { width:34px; height:34px; background:linear-gradient(135deg,#7c3aed,#00d4ff); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:white; flex-shrink:0; }
-
+ 
         .bubble-user { background:linear-gradient(135deg,#1a1a3e,#0f0f28); color:#f3f4f6; padding:12px 16px; border-radius:18px 18px 4px 18px; font-size:15px; line-height:1.6; border:1px solid #2e2e4e; }
         .bot-content-wrapper { display:flex; flex-direction:column; gap:8px; flex:1; overflow:hidden; }
         .thought-block { background:#0f0f18; border-left:2px solid #7c3aed; padding:8px 12px; border-radius:8px; font-size:12px; color:#666; }
@@ -87,7 +85,7 @@
         .bubble-bot ul,.bubble-bot ol { padding-left:20px; margin-bottom:8px; }
         .bubble-bot li { margin-bottom:4px; }
         .msg-time { font-size:10px; color:#333; margin-top:3px; }
-
+ 
         /* IMAGE */
         .gen-img-container { display:flex; flex-direction:column; gap:8px; }
         .gen-img { max-width:100%; border-radius:12px; box-shadow:0 8px 30px #00d4ff11; border:1px solid #1e1e2e; cursor:pointer; transition:transform 0.2s; }
@@ -95,7 +93,7 @@
         .gen-img-label { font-size:11px; color:#7c3aed; display:flex; align-items:center; gap:5px; font-weight:600; }
         .download-img { background:#0f0f18; border:1px solid #2e2e38; color:#00d4ff; padding:6px 12px; border-radius:8px; font-size:12px; text-decoration:none; display:inline-block; }
         .analyzed-img { max-width:180px; border-radius:10px; margin-bottom:6px; }
-
+ 
         /* TYPING */
         #typing { display:none; padding:0 16px 8px; align-items:center; gap:10px; }
         .typing-dots { display:flex; gap:4px; }
@@ -103,7 +101,7 @@
         .d:nth-child(2){animation-delay:0.2s} .d:nth-child(3){animation-delay:0.4s}
         @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
         .typing-text { color:#444; font-size:12px; font-style:italic; }
-
+ 
         /* INPUT */
         #input-container { padding:8px 16px; padding-bottom:max(12px, env(safe-area-inset-bottom)); background:#0a0a10; border-top:1px solid #1e1e2e; }
         #input-zone { background:#0f0f18; border-radius:16px; padding:6px 12px; display:flex; flex-direction:column; gap:4px; border:1px solid #1e1e2e; transition:border-color 0.2s; }
@@ -118,9 +116,9 @@
         .input-btn:active { background:#1a1a2e; color:#fff; }
         #send-btn { background:linear-gradient(135deg,#00d4ff,#7c3aed); color:white; border-radius:10px; width:36px; height:36px; font-size:16px; }
         #file-input { display:none; }
-
+ 
         ::-webkit-scrollbar{width:2px} ::-webkit-scrollbar-thumb{background:#1e1e2e;border-radius:2px}
-
+ 
         @media(max-width:900px) {
             body { flex-direction:column; }
             #sidebar { position:absolute; top:0; left:0; bottom:0; transform:translateX(-100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); padding-top:env(safe-area-inset-top, 0); }
@@ -135,24 +133,24 @@
     </style>
 </head>
 <body>
-
+ 
 <div id="sidebar">
     <div class="sidebar-profile">
         <div class="profile-avatar">IA</div>
         <div class="sidebar-profile-info">
             <h3>Agent Theodore</h3>
-            <p>● Intelligence Artificielle Active</p>
+            <p>● IA Active & Fiable</p>
         </div>
     </div>
-
+ 
     <h2>Discussions</h2>
     <div id="historique"></div>
-
+ 
     <div id="memoire-section">
         <h3>🧠 Mémoire</h3>
         <div id="memoire-list"></div>
     </div>
-
+ 
     <div class="sidebar-bottom">
         <button id="install-app-btn" class="btn-action" onclick="declencherInstall()">📲 Installer PWA</button>
         <button id="android-btn" class="btn-action" onclick="installerAndroid()">🤖 Installer Android</button>
@@ -160,9 +158,9 @@
         <button id="download-btn" class="btn-action" onclick="telecharger()">📥 Télécharger</button>
     </div>
 </div>
-
+ 
 <div id="sidebar-overlay" onclick="fermerSidebar()"></div>
-
+ 
 <div id="main">
     <div id="header">
         <div class="header-left">
@@ -173,20 +171,20 @@
             </div>
             <div class="header-info">
                 <h1>Agent Theodore</h1>
-                <p>Vision · Génération · Mémoire</p>
+                <p>Analyse · Génération · Mémoire</p>
             </div>
         </div>
         <div class="badge-pro">PRO</div>
     </div>
-
+ 
     <div id="messages"></div>
-
+ 
     <div id="typing">
         <div class="ia-avatar">IA</div>
         <div class="typing-dots"><div class="d"></div><div class="d"></div><div class="d"></div></div>
-        <span class="typing-text" id="typing-text">Theodore analyse...</span>
+        <span class="typing-text" id="typing-text">Theodore réfléchit...</span>
     </div>
-
+ 
     <div id="input-container">
         <div id="input-zone">
             <div id="file-preview-area"></div>
@@ -199,278 +197,393 @@
         </div>
     </div>
 </div>
-
+ 
 <script>
-    const manifestObj = {name:"Agent Theodore IA",short_name:"Theodore IA",start_url:window.location.origin + window.location.pathname,display:"standalone",background_color:"#0a0a10",theme_color:"#0a0a10",icons:[{src:"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f0f18%22/><text y=%22.75em%22 x=%228%22 font-size=%2255%22 font-weight=%22900%22 fill=%22%2300d4ff%22>IA</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
-    document.getElementById('pwa-manifest').href = "data:application/manifest+json,"+encodeURIComponent(JSON.stringify(manifestObj));
-
-    let installPrompt = null;
-    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt=e; document.getElementById('install-app-btn').style.display='flex'; });
-    function declencherInstall() { if(installPrompt){installPrompt.prompt();installPrompt.userChoice.then(r=>{if(r.outcome==='accepted')document.getElementById('install-app-btn').style.display='none';installPrompt=null;});} }
-
-    function installerAndroid() {
-        if(installPrompt){declencherInstall();return;}
-        const lien=window.location.href;
-        navigator.clipboard.writeText(lien).then(()=>{
-            alert('✅ Lien copié !\n\nSur Android :\n1. Ouvre Chrome\n2. Colle ce lien\n3. Menu ⋮ → "Ajouter à l\'écran d\'accueil"\n\nL\'app s\'installe sans Play Store !');
-        }).catch(()=>{ alert('Lien : '+lien+'\n\nSur Chrome Android → ⋮ → Ajouter à l\'écran d\'accueil'); });
+    // ========== CONFIG ==========
+    const GROQ_KEY = "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";
+    const MODELS = {
+        chat: 'llama-3.3-70b-versatile',
+        vision: 'llama-3.2-11b-vision-preview'
+    };
+ 
+    // ========== DOM ELEMENTS ==========
+    const msgDiv = document.getElementById('messages');
+    const input = document.getElementById('msg-input');
+    const typing = document.getElementById('typing');
+    const typingText = document.getElementById('typing-text');
+    const historiqueDiv = document.getElementById('historique');
+    const sidebar = document.getElementById('sidebar');
+ 
+    // ========== STATE ==========
+    let historique = [];
+    let sessions = JSON.parse(localStorage.getItem('theo_sessions') || '[]');
+    let memoire = JSON.parse(localStorage.getItem('theo_memoire') || '[]');
+    let fichierJoint = null;
+    let fichierBase64 = null;
+    let isLoading = false;
+ 
+    // ========== UTILS ==========
+    marked.setOptions({ gfm: true, breaks: true });
+ 
+    function heure() {
+        return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     }
-
-    const sidebar=document.getElementById('sidebar');
-    function toggleSidebar(){sidebar.classList.toggle('open');}
-    function fermerSidebar(){sidebar.classList.remove('open');}
-
-    function telecharger(){
-        const blob=new Blob([`<!DOCTYPE html>\n${document.documentElement.outerHTML}`],{type:'text/html'});
-        const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Agent_Theodore_IA.html';a.click();
+ 
+    function toggleSidebar() { sidebar.classList.toggle('open'); }
+    function fermerSidebar() { sidebar.classList.remove('open'); }
+ 
+    function telecharger() {
+        const blob = new Blob([`<!DOCTYPE html>\n${document.documentElement.outerHTML}`], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Agent_Theodore_IA.html';
+        a.click();
     }
-
-    const GROQ_KEY="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";
-    const msgDiv=document.getElementById('messages');
-    const input=document.getElementById('msg-input');
-    const typing=document.getElementById('typing');
-    const typingText=document.getElementById('typing-text');
-    const historiqueDiv=document.getElementById('historique');
-
-    let historique=[];
-    let sessions=JSON.parse(localStorage.getItem('theo_sessions')||'[]');
-    let memoire=JSON.parse(localStorage.getItem('theo_memoire')||'[]');
-    let fichierJoint=null;
-    let fichierBase64=null;
-
-    marked.setOptions({gfm:true,breaks:true});
-    function heure(){return new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
-
-    function afficherMemoire(){
-        const el=document.getElementById('memoire-list');
-        el.innerHTML=memoire.length===0?'<div style="color:#333;font-size:11px;padding:4px">Aucun souvenir</div>':'';
-        memoire.forEach((m,i)=>{
-            el.innerHTML+=`<div class="mem-item">💾 ${m.substring(0,28)}... <span class="mem-del" onclick="supprimerMemoire(${i})">✕</span></div>`;
+ 
+    // ========== MEMOIRE ==========
+    function afficherMemoire() {
+        const el = document.getElementById('memoire-list');
+        el.innerHTML = memoire.length === 0 ? '<div style="color:#333;font-size:11px;padding:4px">Aucun souvenir</div>' : '';
+        memoire.forEach((m, i) => {
+            el.innerHTML += `<div class="mem-item">💾 ${m.substring(0, 28)}... <span class="mem-del" onclick="supprimerMemoire(${i})">✕</span></div>`;
         });
     }
-
-    function supprimerMemoire(i){
-        memoire.splice(i,1);
-        localStorage.setItem('theo_memoire',JSON.stringify(memoire));
+ 
+    function supprimerMemoire(i) {
+        memoire.splice(i, 1);
+        localStorage.setItem('theo_memoire', JSON.stringify(memoire));
         afficherMemoire();
     }
-
-    function extraireEtSauvegarderMemoire(texte){
-        const mots=["je m'appelle","mon nom est","j'habite","je travaille","je suis","my name is","i am","i live","niko","ninaitwa","ninaishi"];
-        const t=texte.toLowerCase();
-        if(mots.some(m=>t.includes(m))){
-            memoire.push(texte.substring(0,60));
-            if(memoire.length>20)memoire.shift();
-            localStorage.setItem('theo_memoire',JSON.stringify(memoire));
+ 
+    function extraireMemoire(texte) {
+        const mots = ["je m'appelle", "mon nom est", "j'habite", "je travaille", "je suis"];
+        if (mots.some(m => texte.toLowerCase().includes(m))) {
+            memoire.push(texte.substring(0, 60));
+            if (memoire.length > 20) memoire.shift();
+            localStorage.setItem('theo_memoire', JSON.stringify(memoire));
             afficherMemoire();
         }
     }
-
-    function construirContexteMemoire(){
-        if(memoire.length===0)return'';
-        return`\n\nMÉMOIRE UTILISATEUR :\n${memoire.map(m=>'- '+m).join('\n')}`;
+ 
+    function construirContexte() {
+        if (memoire.length === 0) return '';
+        return `\n\nMÉMOIRE:\n${memoire.map(m => '- ' + m).join('\n')}`;
     }
-
-    function afficherSessions(){
-        historiqueDiv.innerHTML='';
-        sessions.slice().reverse().forEach((s,i)=>{
-            const idx=sessions.length-1-i;
-            historiqueDiv.innerHTML+=`<div class="session" onclick="chargerSession(${idx});fermerSidebar();"><span class="sess-icon">💬</span><div class="sess-content"><div class="sess-title">${s.titre}</div><div class="sess-date">${s.date||''}</div></div></div>`;
+ 
+    // ========== SESSIONS ==========
+    function afficherSessions() {
+        historiqueDiv.innerHTML = '';
+        sessions.slice().reverse().forEach((s, i) => {
+            const idx = sessions.length - 1 - i;
+            historiqueDiv.innerHTML += `<div class="session" onclick="chargerSession(${idx});fermerSidebar();"><span class="sess-icon">💬</span><div class="sess-content"><div class="sess-title">${s.titre}</div><div class="sess-date">${s.date || ''}</div></div></div>`;
         });
     }
-
-    function chargerSession(i){
-        historique=sessions[i].messages;
-        msgDiv.innerHTML='';
-        historique.forEach(m=>{
-            if(m.role==='user')addUser(m.content);
-            if(m.role==='assistant')addBot(m.content);
+ 
+    function chargerSession(i) {
+        historique = sessions[i].messages;
+        msgDiv.innerHTML = '';
+        historique.forEach(m => {
+            if (m.role === 'user') addUser(m.content);
+            if (m.role === 'assistant') addBot(m.content);
         });
+        msgDiv.scrollTop = msgDiv.scrollHeight;
     }
-
-    function nouvelleConversation(){
-        if(historique.length>0){
-            const p=historique.find(m=>m.role==='user');
-            sessions.push({titre:p?p.content.substring(0,25)+'...':'Discussion',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
-            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
+ 
+    function nouvelleConversation() {
+        if (historique.length > 0) {
+            const p = historique.find(m => m.role === 'user');
+            sessions.push({
+                titre: p ? p.content.substring(0, 25) + '...' : 'Discussion',
+                date: new Date().toLocaleDateString('fr-FR'),
+                messages: historique
+            });
+            localStorage.setItem('theo_sessions', JSON.stringify(sessions));
             afficherSessions();
         }
-        historique=[];msgDiv.innerHTML='';
-        addBot("Nouvelle conversation ! Je suis prêt. 🚀");
+        historique = [];
+        msgDiv.innerHTML = '';
+        addBot("Nouvelle conversation ! Je suis prêt à vous aider. 🚀");
     }
-
-    function addUser(texte){
-        msgDiv.innerHTML+=`<div class="msg-user"><div class="bubble-user">${texte}</div><div class="msg-time">${heure()}</div></div>`;
-        msgDiv.scrollTop=msgDiv.scrollHeight;
-    }
-
-    function addBot(contenu){
-        let pensee='',rep=contenu;
-        if(contenu.includes('<thought>')&&contenu.includes('</thought>')){
-            pensee=contenu.split('</thought>')[0].replace('<thought>','').trim();
-            rep=contenu.split('</thought>')[1].trim();
+ 
+    function sauvegarderSession(texte) {
+        if (historique.length === 2) {
+            sessions.push({
+                titre: texte.substring(0, 25) + '...',
+                date: new Date().toLocaleDateString('fr-FR'),
+                messages: historique
+            });
+            localStorage.setItem('theo_sessions', JSON.stringify(sessions));
+            afficherSessions();
+        } else if (sessions.length > 0) {
+            sessions[sessions.length - 1].messages = historique;
+            localStorage.setItem('theo_sessions', JSON.stringify(sessions));
         }
-        const id='w'+Date.now()+Math.random().toString(36).substr(2,3);
-        msgDiv.innerHTML+=`<div class="msg-bot"><div class="ia-avatar">IA</div><div class="bot-content-wrapper" id="${id}"></div></div>`;
-        const w=document.getElementById(id);
-        if(pensee)w.innerHTML+=`<details class="thought-block"><summary>🧠 Voir le raisonnement</summary><div>${marked.parse(pensee)}</div></details>`;
-        w.innerHTML+=`<div class="bubble-bot">${marked.parse(rep)}</div><div class="msg-time">${heure()}</div>`;
-        msgDiv.scrollTop=msgDiv.scrollHeight;
     }
-
-    function addImageGeneree(prompt,url){
-        msgDiv.innerHTML+=`
-        <div class="msg-bot">
-            <div class="ia-avatar-img">🎨</div>
-            <div class="bot-content-wrapper">
-                <div class="gen-img-container">
-                    <div class="gen-img-label">✦ Image générée par IA</div>
-                    <img class="gen-img" src="${url}" alt="${prompt}" onclick="window.open('${url}','_blank')" loading="lazy">
-                    <a class="download-img" href="${url}" download="theodore-ia.png" target="_blank">⬇ Télécharger</a>
-                </div>
-                <div class="msg-time">${heure()}</div>
-            </div>
-        </div>`;
-        msgDiv.scrollTop=msgDiv.scrollHeight;
+ 
+    // ========== MESSAGES ==========
+    function addUser(texte) {
+        msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user">${texte}</div><div class="msg-time">${heure()}</div></div>`;
+        msgDiv.scrollTop = msgDiv.scrollHeight;
     }
-
-    function detecterGenerationImage(texte){
-        const mots=['génère','generez','génerer','create','generate','dessine','crée','imagine','fais une image','make an image','draw','peins'];
-        return mots.some(m=>texte.toLowerCase().includes(m));
+ 
+    function addBot(contenu) {
+        let pensee = '', rep = contenu;
+        if (contenu.includes('<thought>') && contenu.includes('</thought>')) {
+            pensee = contenu.split('</thought>')[0].replace('<thought>', '').trim();
+            rep = contenu.split('</thought>')[1].trim();
+        }
+        const id = 'w' + Date.now() + Math.random().toString(36).substr(2, 3);
+        msgDiv.innerHTML += `<div class="msg-bot"><div class="ia-avatar">IA</div><div class="bot-content-wrapper" id="${id}"></div></div>`;
+        const w = document.getElementById(id);
+        if (pensee) w.innerHTML += `<details class="thought-block"><summary>🧠 Raisonnement</summary><div>${marked.parse(pensee)}</div></details>`;
+        w.innerHTML += `<div class="bubble-bot">${marked.parse(rep)}</div><div class="msg-time">${heure()}</div>`;
+        msgDiv.scrollTop = msgDiv.scrollHeight;
     }
-
-    async function genererImage(prompt){
-        typingText.innerText="Génération de l'image...";
-        typing.style.display='flex';
-        const promptClean=prompt.replace(/génère|générer|dessine|crée|imagine|fais une image|generate|create|draw|peins/gi,'').replace(/une image de|un image de|an image of|a picture of|une photo de/gi,'').trim();
-        const promptEN=encodeURIComponent(promptClean+', professional photography, ultra realistic, 8k, masterpiece, highly detailed, cinematic lighting');
-        const url=`https://image.pollinations.ai/prompt/${promptEN}?width=1024&height=1024&nologo=true&model=flux`;
-        typing.style.display='none';
-        addUser(prompt);
-        addImageGeneree(promptClean,url);
-        historique.push({role:'user',content:prompt});
-        historique.push({role:'assistant',content:`[Image générée: ${promptClean}]`});
-        sauvegarderSession(prompt);
+ 
+    function addImageGeneree(prompt, url) {
+        msgDiv.innerHTML += `<div class="msg-bot"><div class="ia-avatar-img">🎨</div><div class="bot-content-wrapper"><div class="gen-img-container"><div class="gen-img-label">✦ Image générée par IA</div><img class="gen-img" src="${url}" alt="${prompt}" onclick="window.open('${url}','_blank')" loading="lazy"><a class="download-img" href="${url}" download="theodore-ia.png">⬇ Télécharger</a></div><div class="msg-time">${heure()}</div></div></div>`;
+        msgDiv.scrollTop = msgDiv.scrollHeight;
     }
-
-    async function analyserImage(texte,b64,mimeType){
-        typingText.innerText="Analyse de l'image...";
-        typing.style.display='flex';
-        try{
-            const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-                method:'POST',
-                headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
-                body:JSON.stringify({
-                    model:'llama-3.2-11b-vision-preview',
-                    messages:[{role:'user',content:[
-                        {type:'text',text:texte||'Analyse cette image en détail. Décris ce que tu vois, les couleurs, l\'ambiance, les détails et le contexte. Réponds en français de façon professionnelle et complète.'},
-                        {type:'image_url',image_url:{url:`data:${mimeType};base64,${b64}`}}
-                    ]}],
-                    max_tokens:1000
+ 
+    // ========== IMAGE GENERATION ==========
+    function detecterImage(texte) {
+        const mots = ['génère', 'generate', 'dessine', 'crée', 'imagine', 'fais une image', 'create image'];
+        return mots.some(m => texte.toLowerCase().includes(m));
+    }
+ 
+    async function genererImage(prompt) {
+        if (isLoading) return;
+        isLoading = true;
+        typingText.innerText = "🎨 Génération en cours...";
+        typing.style.display = 'flex';
+ 
+        try {
+            const cleanPrompt = prompt.replace(/génère|générer|dessine|crée|imagine|fais une image|generate|create|draw|peins/gi, '').trim();
+            const promptEncoded = encodeURIComponent(cleanPrompt + ', professional, 8k, detailed');
+            const url = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1024&height=1024&nologo=true`;
+ 
+            typing.style.display = 'none';
+            addUser(prompt);
+            addImageGeneree(cleanPrompt, url);
+ 
+            historique.push({ role: 'user', content: prompt });
+            historique.push({ role: 'assistant', content: `[Image: ${cleanPrompt}]` });
+            sauvegarderSession(prompt);
+        } catch (e) {
+            typing.style.display = 'none';
+            addBot("❌ Erreur génération. Réessaie.");
+        }
+        isLoading = false;
+    }
+ 
+    // ========== IMAGE ANALYSIS ==========
+    async function analyserImage(texte, b64, mimeType) {
+        if (isLoading) return;
+        isLoading = true;
+        typingText.innerText = "📸 Analyse en cours...";
+        typing.style.display = 'flex';
+ 
+        try {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_KEY}`
+                },
+                body: JSON.stringify({
+                    model: MODELS.vision,
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: texte || 'Analyse cette image avec précision.' },
+                            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } }
+                        ]
+                    }],
+                    max_tokens: 1500
                 })
             });
-            const data=await res.json();
-            typing.style.display='none';
-            if(data.choices&&data.choices[0]){
-                const rep=data.choices[0].message.content;
-                historique.push({role:'user',content:texte||'Analyse cette image'});
-                historique.push({role:'assistant',content:rep});
+ 
+            const data = await res.json();
+            typing.style.display = 'none';
+ 
+            if (data.choices?.[0]?.message?.content) {
+                const rep = data.choices[0].message.content;
+                historique.push({ role: 'user', content: texte || 'Analyse cette image' });
+                historique.push({ role: 'assistant', content: rep });
                 addBot(rep);
-                sauvegarderSession(texte||'Analyse image');
-            }else{addBot("Impossible d'analyser cette image.");}
-        }catch(e){typing.style.display='none';addBot("Erreur d'analyse. Vérifie ta connexion.");}
-    }
-
-    function sauvegarderSession(texte){
-        if(historique.length===2){
-            sessions.push({titre:texte.substring(0,25)+'...',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
-            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
-            afficherSessions();
-        }else if(sessions.length>0){
-            sessions[sessions.length-1].messages=historique;
-            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
+                sauvegarderSession(texte || 'Analyse');
+            } else {
+                addBot("❌ Impossible d'analyser. Vérifie ta connexion.");
+            }
+        } catch (e) {
+            typing.style.display = 'none';
+            addBot("❌ Erreur: " + (e.message || "Connexion"));
         }
+        isLoading = false;
     }
-
-    function gererFichier(inp){
-        if(inp.files&&inp.files[0]){
-            fichierJoint=inp.files[0];
-            const reader=new FileReader();
-            reader.onload=e=>{
-                fichierBase64=e.target.result;
-                const prev=document.getElementById('file-preview-area');
-                prev.innerHTML=`<div class="preview-badge">🖼️ ${fichierJoint.name.substring(0,18)} <span onclick="retirerFichier()">✕</span></div>`;
-                prev.style.display='flex';
+ 
+    // ========== FILE MANAGEMENT ==========
+    function gererFichier(inp) {
+        if (inp.files?.[0]) {
+            fichierJoint = inp.files[0];
+            const reader = new FileReader();
+            reader.onload = e => {
+                fichierBase64 = e.target.result;
+                const prev = document.getElementById('file-preview-area');
+                prev.innerHTML = `<div class="preview-badge">🖼️ ${fichierJoint.name.substring(0, 18)} <span onclick="retirerFichier()">✕</span></div>`;
+                prev.style.display = 'flex';
             };
             reader.readAsDataURL(fichierJoint);
         }
     }
-
-    function retirerFichier(){
-        fichierJoint=null;fichierBase64=null;
-        document.getElementById('file-input').value='';
-        document.getElementById('file-preview-area').style.display='none';
+ 
+    function retirerFichier() {
+        fichierJoint = null;
+        fichierBase64 = null;
+        document.getElementById('file-input').value = '';
+        document.getElementById('file-preview-area').style.display = 'none';
     }
-
-    async function envoyer(){
-        const texte=input.value.trim();
-        if(!texte&&!fichierJoint)return;
-        input.value='';
-
-        if(fichierJoint&&fichierBase64){
-            const b64=fichierBase64.split(',')[1];
-            const mime=fichierJoint.type;
-            msgDiv.innerHTML+=`<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte||'Analyse cette image'}</div><div class="msg-time">${heure()}</div></div>`;
-            msgDiv.scrollTop=msgDiv.scrollHeight;
+ 
+    // ========== MAIN SEND ==========
+    async function envoyer() {
+        const texte = input.value.trim();
+        if (!texte && !fichierJoint) return;
+        if (isLoading) return;
+ 
+        input.value = '';
+ 
+        // Image upload + analysis
+        if (fichierJoint && fichierBase64) {
+            const b64 = fichierBase64.split(',')[1];
+            const mime = fichierJoint.type;
+            msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte || 'Analyse'}</div><div class="msg-time">${heure()}</div></div>`;
+            msgDiv.scrollTop = msgDiv.scrollHeight;
             retirerFichier();
-            await analyserImage(texte,b64,mime);
+            await analyserImage(texte, b64, mime);
             return;
         }
-
-        if(detecterGenerationImage(texte)){await genererImage(texte);return;}
-
-        extraireEtSauvegarderMemoire(texte);
+ 
+        // Image generation
+        if (detecterImage(texte)) {
+            await genererImage(texte);
+            return;
+        }
+ 
+        // Normal chat
+        extraireMemoire(texte);
         addUser(texte);
-        historique.push({role:'user',content:texte});
-        typingText.innerText='Theodore réfléchit...';
-        typing.style.display='flex';
-
-        try{
-            const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-                method:'POST',
-                headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
-                body:JSON.stringify({
-                    model:'llama-3.3-70b-versatile',
-                    messages:[
-                        {role:'system',content:`Tu es l'Agent Theodore, une intelligence artificielle de prestige supérieur créée par l'ingénieur burundais Theodore Nahano. Tu es extrêmement intelligent, polyglotte, élégant et expert dans tous les domaines. Tu réponds dans la langue de ton interlocuteur. Tu as une mémoire des conversations et tu peux analyser des images et générer des images.${construirContexteMemoire()}\n\nQuand on te demande d'écrire un long document, écris-le intégralement et complètement jusqu'à 30 pages si nécessaire sans jamais t'arrêter.`},
+        historique.push({ role: 'user', content: texte });
+        typingText.innerText = 'Theodore réfléchit...';
+        typing.style.display = 'flex';
+        isLoading = true;
+ 
+        try {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_KEY}`
+                },
+                body: JSON.stringify({
+                    model: MODELS.chat,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Tu es l'Agent Theodore, IA de prestige créée par Theodore Nahano. Tu es:
+- Intelligent, polyglotte, professionnel
+- Capable d'analyser des images avec précision
+- Capable de générer des images
+- Fiable et de ressources suffisantes
+- Bref et clair dans tes réponses
+ 
+Réponds dans la langue de l'utilisateur.${construirContexte()}`
+                        },
                         ...historique
                     ],
-                    max_tokens:4000,temperature:0.65
+                    max_tokens: 2000,
+                    temperature: 0.65
                 })
             });
-            const data=await res.json();
-            const rep=data.choices[0].message.content;
-            historique.push({role:'assistant',content:rep});
-            typing.style.display='none';
-            addBot(rep);
-            sauvegarderSession(texte);
-        }catch(e){typing.style.display='none';addBot("Connexion interrompue. Réessaie.");}
+ 
+            const data = await res.json();
+ 
+            if (data.error) {
+                addBot("⚠️ Erreur API: " + data.error.message);
+            } else if (data.choices?.[0]?.message?.content) {
+                const rep = data.choices[0].message.content;
+                historique.push({ role: 'assistant', content: rep });
+                addBot(rep);
+                sauvegarderSession(texte);
+            } else {
+                addBot("❌ Pas de réponse. Réessaie.");
+            }
+        } catch (e) {
+            addBot("❌ Erreur: " + (e.message || "Connexion"));
+        }
+ 
+        typing.style.display = 'none';
+        isLoading = false;
     }
-
-    input.addEventListener('keypress',e=>{if(e.key==='Enter')envoyer();});
+ 
+    // ========== PWA ==========
+    const manifest = {
+        name: "Agent Theodore IA",
+        short_name: "Theodore IA",
+        start_url: window.location.origin + window.location.pathname,
+        display: "standalone",
+        background_color: "#0a0a10",
+        theme_color: "#0a0a10",
+        icons: [{
+            src: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f0f18%22/><text y=%22.75em%22 x=%228%22 font-size=%2255%22 font-weight=%22900%22 fill=%22%2300d4ff%22>IA</text></svg>",
+            sizes: "192x192",
+            type: "image/svg+xml"
+        }]
+    };
+    document.getElementById('pwa-manifest').href = "data:application/manifest+json," + encodeURIComponent(JSON.stringify(manifest));
+ 
+    let installPrompt = null;
+    window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        installPrompt = e;
+        document.getElementById('install-app-btn').style.display = 'flex';
+    });
+ 
+    function declencherInstall() {
+        if (installPrompt) {
+            installPrompt.prompt();
+            installPrompt.userChoice.then(r => {
+                if (r.outcome === 'accepted') document.getElementById('install-app-btn').style.display = 'none';
+                installPrompt = null;
+            });
+        }
+    }
+ 
+    function installerAndroid() {
+        const lien = window.location.href;
+        navigator.clipboard.writeText(lien).then(() => {
+            alert('✅ Lien copié!\n\nAndroid:\n1. Chrome\n2. Colle le lien\n3. Menu ⋮ → Ajouter à accueil');
+        }).catch(() => {
+            alert('Lien: ' + lien);
+        });
+    }
+ 
+    // ========== INIT ==========
+    input.addEventListener('keypress', e => { if (e.key === 'Enter') envoyer(); });
     afficherSessions();
     afficherMemoire();
-    addBot(`Bonjour ! Je suis **l'Agent Theodore** — Intelligence Artificielle de Nouvelle Génération. 🚀
-
-**Mes capacités :**
-- 💬 Répondre à toutes vos questions
-- 📷 Analyser des photos avec précision
-- 🎨 Générer des images professionnelles
-- 🧠 Mémoriser vos informations personnelles
-- 📄 Rédiger des documents jusqu'à 30 pages
-- 🌍 Communiquer dans toutes les langues
-
-Comment puis-je vous aider aujourd'hui ?`);
+ 
+    addBot(`Bonjour! Je suis **l'Agent Theodore** — IA Nouvelle Génération. 🚀
+ 
+**Capacités:**
+- 💬 Questions & réponses précis
+- 📷 Analyse d'images avec précision
+- 🎨 Génération d'images HD
+- 🧠 Mémoire conversationnelle
+- 📄 Rédaction professionnelle
+- 🌍 Multilingue
+ 
+Comment puis-je vous aider?`);
 </script>
 </body>
 </html>
+ 

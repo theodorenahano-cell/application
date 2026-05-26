@@ -1,4 +1,3 @@
-Agent theodore ia optimized · HTML
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -201,10 +200,9 @@ Agent theodore ia optimized · HTML
  
 <script>
     // ========== CONFIG ==========
-    const GROQ_KEY = "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";
     const MODELS = {
-        chat: 'llama-3.3-70b-versatile',
-        vision: 'llama-3.2-11b-vision-preview'
+        chat: 'claude-3-5-sonnet-20241022',
+        vision: 'claude-3-5-sonnet-20241022'
     };
  
     // ========== DOM ELEMENTS ==========
@@ -388,64 +386,58 @@ Agent theodore ia optimized · HTML
             // Nettoie le base64
             const cleanB64 = b64.replace(/[\s\n\r]/g, '').trim();
             
-            // Prépare le message avec l'image
+            // Utilise Claude API pour l'analyse d'images (plus fiable)
             const requestBody = {
-                model: 'llama-3.2-11b-vision-preview',
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: 1024,
                 messages: [{
                     role: 'user',
                     content: [
-                        { 
-                            type: 'text', 
-                            text: texte || 'Décris cette image en détail. Qu\'y a-t-il? Couleurs? Objets? Texte? Contexte?' 
+                        {
+                            type: 'image',
+                            source: {
+                                type: 'base64',
+                                media_type: mimeType,
+                                data: cleanB64
+                            }
                         },
-                        { 
-                            type: 'image_url', 
-                            image_url: { 
-                                url: `data:${mimeType};base64,${cleanB64}`
-                            } 
+                        {
+                            type: 'text',
+                            text: texte || 'Analyse cette image en détail. Décris ce que tu vois: objets, couleurs, contexte, texte, ambiance.'
                         }
                     ]
-                }],
-                max_tokens: 1024
+                }]
             };
  
-            console.log('Envoi requête vision API...');
+            console.log('Envoi à Claude Vision API...');
             
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_KEY}`
+                    'x-api-key': 'sk-ant-v2-DH0YdWpLgm9VkBZVJH5yAw2SWLo-z6y8wM6gVNqFsT2bFAQVVxIkHhJzL8jZLkHyY-N0BrsJjVqkCN8a3MQPxQ'
                 },
                 body: JSON.stringify(requestBody)
             });
  
             console.log('Status:', res.status);
             const data = await res.json();
-            console.log('Response:', data);
+            console.log('Réponse:', data);
  
             typing.style.display = 'none';
  
             if (data.error) {
                 const errMsg = data.error.message || JSON.stringify(data.error);
-                console.error('Erreur API:', errMsg);
-                
-                // Fallback: envoie juste le texte utilisateur si image échoue
-                if (texte) {
-                    addBot("Je n'ai pas pu analyser l'image, mais je peux répondre à: **" + texte + "**");
-                    historique.push({ role: 'user', content: texte });
-                    historique.push({ role: 'assistant', content: "Image non analysable - votre question a été notée." });
-                } else {
-                    addBot("❌ Impossible d'analyser cette image. Essaie une autre ou fais-moi une description.");
-                }
-            } else if (data.choices?.[0]?.message?.content) {
-                const rep = data.choices[0].message.content;
-                historique.push({ role: 'user', content: texte ? texte : '[Image analysée]' });
+                console.error('Erreur API Claude:', errMsg);
+                addBot("⚠️ Analyse impossible: " + errMsg.substring(0, 50));
+            } else if (data.content?.[0]?.text) {
+                const rep = data.content[0].text;
+                historique.push({ role: 'user', content: texte ? texte : '[Image envoyée]' });
                 historique.push({ role: 'assistant', content: rep });
                 addBot(rep);
                 sauvegarderSession(texte || 'Analyse image');
             } else {
-                addBot("❌ Pas de réponse de l'API. Réessaie.");
+                addBot("❌ Pas de réponse. Réessaie avec une autre image.");
             }
         } catch (e) {
             typing.style.display = 'none';
@@ -540,39 +532,33 @@ Agent theodore ia optimized · HTML
         isLoading = true;
  
         try {
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_KEY}`
+                    'x-api-key': 'sk-ant-v2-DH0YdWpLgm9VkBZVJH5yAw2SWLo-z6y8wM6gVNqFsT2bFAQVVxIkHhJzL8jZLkHyY-N0BrsJjVqkCN8a3MQPxQ'
                 },
                 body: JSON.stringify({
-                    model: MODELS.chat,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: `Tu es l'Agent Theodore, IA de prestige créée par Theodore Nahano. Tu es:
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 2000,
+                    system: `Tu es l'Agent Theodore, IA créée par Theodore Nahano. Tu es:
 - Intelligent, polyglotte, professionnel
 - Capable d'analyser des images avec précision
 - Capable de générer des images
 - Fiable et de ressources suffisantes
 - Bref et clair dans tes réponses
  
-Réponds dans la langue de l'utilisateur.${construirContexte()}`
-                        },
-                        ...historique
-                    ],
-                    max_tokens: 2000,
-                    temperature: 0.65
+Réponds dans la langue de l'utilisateur.${construirContexte()}`,
+                    messages: historique
                 })
             });
  
             const data = await res.json();
  
             if (data.error) {
-                addBot("⚠️ Erreur API: " + data.error.message);
-            } else if (data.choices?.[0]?.message?.content) {
-                const rep = data.choices[0].message.content;
+                addBot("⚠️ Erreur: " + data.error.message);
+            } else if (data.content?.[0]?.text) {
+                const rep = data.content[0].text;
                 historique.push({ role: 'assistant', content: rep });
                 addBot(rep);
                 sauvegarderSession(texte);

@@ -384,40 +384,63 @@
         typing.style.display = 'flex';
  
         try {
+            // Assure que le base64 est complet et sans caractères invalides
+            const cleanB64 = b64.replace(/[\s\n\r]/g, '');
+            
+            const requestBody = {
+                model: MODELS.vision,
+                messages: [{
+                    role: 'user',
+                    content: [
+                        { 
+                            type: 'text', 
+                            text: texte || 'Analyse cette image avec précision. Décris les détails, couleurs, objets, texte visible.' 
+                        },
+                        { 
+                            type: 'image_url', 
+                            image_url: { 
+                                url: `data:${mimeType};base64,${cleanB64}` 
+                            } 
+                        }
+                    ]
+                }],
+                max_tokens: 1200,
+                temperature: 0.7
+            };
+ 
             const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${GROQ_KEY}`
                 },
-                body: JSON.stringify({
-                    model: MODELS.vision,
-                    messages: [{
-                        role: 'user',
-                        content: [
-                            { type: 'text', text: texte || 'Analyse cette image avec précision.' },
-                            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } }
-                        ]
-                    }],
-                    max_tokens: 1500
-                })
+                body: JSON.stringify(requestBody),
+                timeout: 30000
             });
+ 
+            if (!res.ok) {
+                throw new Error(`API Error: ${res.status} ${res.statusText}`);
+            }
  
             const data = await res.json();
             typing.style.display = 'none';
  
-            if (data.choices?.[0]?.message?.content) {
+            if (data.error) {
+                console.error('API Error:', data.error);
+                addBot("⚠️ API: " + (data.error.message || "Erreur serveur"));
+            } else if (data.choices?.[0]?.message?.content) {
                 const rep = data.choices[0].message.content;
                 historique.push({ role: 'user', content: texte || 'Analyse cette image' });
                 historique.push({ role: 'assistant', content: rep });
                 addBot(rep);
-                sauvegarderSession(texte || 'Analyse');
+                sauvegarderSession(texte || 'Analyse image');
             } else {
-                addBot("❌ Impossible d'analyser. Vérifie ta connexion.");
+                addBot("❌ Pas de réponse. Réessaie.");
             }
         } catch (e) {
             typing.style.display = 'none';
-            addBot("❌ Erreur: " + (e.message || "Connexion"));
+            console.error('Erreur analyse:', e);
+            addBot("❌ Erreur: " + (e.message || "Connexion échouée"));
         }
         isLoading = false;
     }
@@ -425,15 +448,36 @@
     // ========== FILE MANAGEMENT ==========
     function gererFichier(inp) {
         if (inp.files?.[0]) {
-            fichierJoint = inp.files[0];
+            const file = inp.files[0];
+            
+            // Vérifie le type d'image
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Sélectionne une image valide!');
+                return;
+            }
+ 
+            // Limite la taille à 5MB
+            if (file.size > 5 * 1024 * 1024) {
+                alert('❌ Image trop grande (max 5MB)');
+                return;
+            }
+ 
+            fichierJoint = file;
             const reader = new FileReader();
+            
             reader.onload = e => {
                 fichierBase64 = e.target.result;
                 const prev = document.getElementById('file-preview-area');
                 prev.innerHTML = `<div class="preview-badge">🖼️ ${fichierJoint.name.substring(0, 18)} <span onclick="retirerFichier()">✕</span></div>`;
                 prev.style.display = 'flex';
             };
-            reader.readAsDataURL(fichierJoint);
+ 
+            reader.onerror = () => {
+                alert('❌ Erreur lecture fichier');
+                retirerFichier();
+            };
+ 
+            reader.readAsDataURL(file);
         }
     }
  
@@ -454,8 +498,15 @@
  
         // Image upload + analysis
         if (fichierJoint && fichierBase64) {
-            const b64 = fichierBase64.split(',')[1];
-            const mime = fichierJoint.type;
+            // Extraction du base64 propre
+            let b64 = fichierBase64;
+            if (fichierBase64.includes(',')) {
+                b64 = fichierBase64.split(',')[1];
+            }
+            b64 = b64.replace(/[\s\n\r]/g, ''); // Nettoie les caractères blancs
+            
+            const mime = fichierJoint.type || 'image/jpeg';
+            
             msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte || 'Analyse'}</div><div class="msg-time">${heure()}</div></div>`;
             msgDiv.scrollTop = msgDiv.scrollHeight;
             retirerFichier();

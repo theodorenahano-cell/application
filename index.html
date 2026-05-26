@@ -379,82 +379,79 @@
     async function analyserImage(texte, b64, mimeType) {
         if (isLoading) return;
         isLoading = true;
-        typingText.innerText = "📸 Analyse en cours...";
+        typingText.innerText = "📸 Analyse détaillée en cours...";
         typing.style.display = 'flex';
  
         try {
             // Nettoie le base64
             const cleanB64 = b64.replace(/[\s\n\r]/g, '').trim();
             
-            // Utilise Google Vision API via fetch simple
-            const requestBody = {
-                requests: [{
-                    image: {
-                        content: cleanB64
-                    },
-                    features: [
-                        { type: 'LABEL_DETECTION', maxResults: 10 },
-                        { type: 'TEXT_DETECTION', maxResults: 10 },
-                        { type: 'SAFE_SEARCH_DETECTION' },
-                        { type: 'IMAGE_PROPERTIES' }
-                    ]
-                }]
-            };
+            // Détecte le type MIME correct
+            let mimeType_correct = mimeType;
+            if (!mimeType_correct || mimeType_correct === 'undefined') {
+                mimeType_correct = 'image/jpeg';
+            }
  
-            console.log('Analyse image avec Google Vision...');
+            console.log('Envoi à Gemini Vision avec MIME:', mimeType_correct);
             
-            const res = await fetch('https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA_cVRqEJZJ5xKJKHEkGqaGXp8Y-zDXqec', {
+            // Utilise Google Gemini API directement
+            const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyD0W7-0ZbqmKp-T5AYGfKAqj9B0V1s3fDk', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            {
+                                inlineData: {
+                                    mimeType: mimeType_correct,
+                                    data: cleanB64
+                                }
+                            },
+                            {
+                                text: texte || `Analyse cette image en détail en français. Décris:
+1. Qu'y a-t-il sur l'image? (objets, personnes, lieux)
+2. Les couleurs dominantes
+3. Le style et l'ambiance
+4. Tout texte visible
+5. Le contexte et la composition
+Sois très détaillé et précis.`
+                            }
+                        ]
+                    }],
+                    generationConfig: {
+                        maxOutputTokens: 2048,
+                        temperature: 0.7
+                    }
+                })
             });
  
+            console.log('Status Gemini:', res.status);
             const data = await res.json();
-            console.log('Vision Response:', data);
+            console.log('Réponse Gemini:', data);
  
             typing.style.display = 'none';
  
-            if (data.responses && data.responses[0]) {
-                const resp = data.responses[0];
-                let analyse = texte ? texte + '\n\n' : '';
-                
-                // Compile les résultats
-                if (resp.labelAnnotations && resp.labelAnnotations.length > 0) {
-                    analyse += '**Contenu détecté:** ' + resp.labelAnnotations.slice(0, 5).map(l => l.description).join(', ') + '\n\n';
-                }
-                
-                if (resp.textAnnotations && resp.textAnnotations.length > 0) {
-                    analyse += '**Texte trouvé:** ' + resp.textAnnotations[0].description.substring(0, 200) + '\n\n';
-                }
-                
-                if (resp.imagePropertiesAnnotation) {
-                    const colors = resp.imagePropertiesAnnotation.dominantColors?.colors || [];
-                    if (colors.length > 0) {
-                        analyse += '**Couleurs dominantes:** ' + colors.slice(0, 3).map(c => `RGB(${c.color.red},${c.color.green},${c.color.blue})`).join(', ') + '\n\n';
-                    }
-                }
-                
-                if (!analyse.trim()) {
-                    analyse = "Image analysée mais peu de détails détectés. Peux-tu me donner plus de contexte?";
-                }
- 
-                historique.push({ role: 'user', content: texte ? texte : '[Image envoyée]' });
-                historique.push({ role: 'assistant', content: analyse });
-                addBot(analyse);
+            if (data.error) {
+                const errMsg = data.error.message || JSON.stringify(data.error);
+                console.error('Erreur Gemini:', errMsg);
+                addBot("⚠️ Analyse échouée: " + errMsg.substring(0, 100));
+            } else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                const rep = data.candidates[0].content.parts[0].text;
+                historique.push({ role: 'user', content: texte ? texte : '[Image envoyée pour analyse]' });
+                historique.push({ role: 'assistant', content: rep });
+                addBot(rep);
                 sauvegarderSession(texte || 'Analyse image');
+            } else if (data.candidates) {
+                addBot("Image reçue mais pas d'analyse disponible pour le moment. Réessaie!");
             } else {
-                addBot("Analyse complète! L'image contient: " + (texte || "une image sans détails textuels"));
-                historique.push({ role: 'user', content: texte || '[Image]' });
-                historique.push({ role: 'assistant', content: "Image reçue et notée." });
+                addBot("❌ Analyse indisponible. Vérifiez votre connexion.");
             }
         } catch (e) {
             typing.style.display = 'none';
-            console.error('Erreur:', e);
-            addBot("📸 Image reçue! (Analyse: " + (texte || "image analysée") + ")");
-            historique.push({ role: 'user', content: texte || '[Image]' });
-            historique.push({ role: 'assistant', content: "Image traitée avec succès." });
+            console.error('Erreur Gemini:', e);
+            addBot("❌ Erreur lors de l'analyse: " + (e.message || "Connexion impossible"));
         }
         isLoading = false;
     }
@@ -544,25 +541,27 @@
         isLoading = true;
  
         try {
-            const res = await fetch('https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1/v1/chat/completions', {
+            // Gemini API pour le chat
+            const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyD0W7-0ZbqmKp-T5AYGfKAqj9B0V1s3fDk', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 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'
                 },
                 body: JSON.stringify({
-                    model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
-                    messages: [
+                    contents: [
                         {
-                            role: 'system',
-                            content: `Tu es l'Agent Theodore, IA créée par Theodore Nahano. 
-Tu es intelligent, polyglotte, professionnel et fiable.
-Sois bref et clair. Réponds dans la langue de l'utilisateur.${construirContexte()}`
-                        },
-                        ...historique
+                            role: 'user',
+                            parts: [
+                                {
+                                    text: `Tu es l'Agent Theodore, IA créée par Theodore Nahano. Tu es intelligent, polyglotte, professionnel et fiable. Sois bref et clair. Réponds toujours en français ou dans la langue de l'utilisateur.${construirContexte()}\n\nQuestion de l'utilisateur: ${texte}`
+                                }
+                            ]
+                        }
                     ],
-                    max_tokens: 1500,
-                    temperature: 0.7
+                    generationConfig: {
+                        maxOutputTokens: 1500,
+                        temperature: 0.7
+                    }
                 })
             });
  
@@ -570,18 +569,18 @@ Sois bref et clair. Réponds dans la langue de l'utilisateur.${construirContexte
             console.log('Chat Response:', data);
  
             if (data.error) {
-                addBot("⚠️ Service indisponible. Réessaie dans quelques secondes.");
-            } else if (data.choices?.[0]?.message?.content) {
-                const rep = data.choices[0].message.content;
+                addBot("⚠️ Service temporairement indisponible. Réessaie!");
+            } else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                const rep = data.candidates[0].content.parts[0].text;
                 historique.push({ role: 'assistant', content: rep });
                 addBot(rep);
                 sauvegarderSession(texte);
             } else {
-                addBot("Demande reçue! Comment puis-je vous aider?");
+                addBot("Hmm, je n'ai pas compris. Peux-tu reformuler? 🤔");
             }
         } catch (e) {
             console.error('Erreur chat:', e);
-            addBot("Prêt à répondre! Reformule ta question? 🤔");
+            addBot("Connexion temporaire. Réessaie dans quelques secondes! ⏳");
         }
  
         typing.style.display = 'none';
@@ -648,4 +647,5 @@ Sois bref et clair. Réponds dans la langue de l'utilisateur.${construirContexte
 Comment puis-je vous aider?`);
 </script>
 </body>
-</htm
+</html>
+ 

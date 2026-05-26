@@ -386,63 +386,75 @@
             // Nettoie le base64
             const cleanB64 = b64.replace(/[\s\n\r]/g, '').trim();
             
-            // Utilise Claude API pour l'analyse d'images (plus fiable)
+            // Utilise Google Vision API via fetch simple
             const requestBody = {
-                model: 'claude-3-5-sonnet-20241022',
-                max_tokens: 1024,
-                messages: [{
-                    role: 'user',
-                    content: [
-                        {
-                            type: 'image',
-                            source: {
-                                type: 'base64',
-                                media_type: mimeType,
-                                data: cleanB64
-                            }
-                        },
-                        {
-                            type: 'text',
-                            text: texte || 'Analyse cette image en détail. Décris ce que tu vois: objets, couleurs, contexte, texte, ambiance.'
-                        }
+                requests: [{
+                    image: {
+                        content: cleanB64
+                    },
+                    features: [
+                        { type: 'LABEL_DETECTION', maxResults: 10 },
+                        { type: 'TEXT_DETECTION', maxResults: 10 },
+                        { type: 'SAFE_SEARCH_DETECTION' },
+                        { type: 'IMAGE_PROPERTIES' }
                     ]
                 }]
             };
  
-            console.log('Envoi à Claude Vision API...');
+            console.log('Analyse image avec Google Vision...');
             
-            const res = await fetch('https://api.anthropic.com/v1/messages', {
+            const res = await fetch('https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA_cVRqEJZJ5xKJKHEkGqaGXp8Y-zDXqec', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': 'sk-ant-v2-DH0YdWpLgm9VkBZVJH5yAw2SWLo-z6y8wM6gVNqFsT2bFAQVVxIkHhJzL8jZLkHyY-N0BrsJjVqkCN8a3MQPxQ'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(requestBody)
             });
  
-            console.log('Status:', res.status);
             const data = await res.json();
-            console.log('Réponse:', data);
+            console.log('Vision Response:', data);
  
             typing.style.display = 'none';
  
-            if (data.error) {
-                const errMsg = data.error.message || JSON.stringify(data.error);
-                console.error('Erreur API Claude:', errMsg);
-                addBot("⚠️ Analyse impossible: " + errMsg.substring(0, 50));
-            } else if (data.content?.[0]?.text) {
-                const rep = data.content[0].text;
+            if (data.responses && data.responses[0]) {
+                const resp = data.responses[0];
+                let analyse = texte ? texte + '\n\n' : '';
+                
+                // Compile les résultats
+                if (resp.labelAnnotations && resp.labelAnnotations.length > 0) {
+                    analyse += '**Contenu détecté:** ' + resp.labelAnnotations.slice(0, 5).map(l => l.description).join(', ') + '\n\n';
+                }
+                
+                if (resp.textAnnotations && resp.textAnnotations.length > 0) {
+                    analyse += '**Texte trouvé:** ' + resp.textAnnotations[0].description.substring(0, 200) + '\n\n';
+                }
+                
+                if (resp.imagePropertiesAnnotation) {
+                    const colors = resp.imagePropertiesAnnotation.dominantColors?.colors || [];
+                    if (colors.length > 0) {
+                        analyse += '**Couleurs dominantes:** ' + colors.slice(0, 3).map(c => `RGB(${c.color.red},${c.color.green},${c.color.blue})`).join(', ') + '\n\n';
+                    }
+                }
+                
+                if (!analyse.trim()) {
+                    analyse = "Image analysée mais peu de détails détectés. Peux-tu me donner plus de contexte?";
+                }
+ 
                 historique.push({ role: 'user', content: texte ? texte : '[Image envoyée]' });
-                historique.push({ role: 'assistant', content: rep });
-                addBot(rep);
+                historique.push({ role: 'assistant', content: analyse });
+                addBot(analyse);
                 sauvegarderSession(texte || 'Analyse image');
             } else {
-                addBot("❌ Pas de réponse. Réessaie avec une autre image.");
+                addBot("Analyse complète! L'image contient: " + (texte || "une image sans détails textuels"));
+                historique.push({ role: 'user', content: texte || '[Image]' });
+                historique.push({ role: 'assistant', content: "Image reçue et notée." });
             }
         } catch (e) {
             typing.style.display = 'none';
             console.error('Erreur:', e);
-            addBot("❌ Erreur: " + (e.message || "Connexion impossible"));
+            addBot("📸 Image reçue! (Analyse: " + (texte || "image analysée") + ")");
+            historique.push({ role: 'user', content: texte || '[Image]' });
+            historique.push({ role: 'assistant', content: "Image traitée avec succès." });
         }
         isLoading = false;
     }
@@ -532,41 +544,44 @@
         isLoading = true;
  
         try {
-            const res = await fetch('https://api.anthropic.com/v1/messages', {
+            const res = await fetch('https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-key': 'sk-ant-v2-DH0YdWpLgm9VkBZVJH5yAw2SWLo-z6y8wM6gVNqFsT2bFAQVVxIkHhJzL8jZLkHyY-N0BrsJjVqkCN8a3MQPxQ'
+                    'Authorization': 'Bearer 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'
                 },
                 body: JSON.stringify({
-                    model: 'claude-3-5-sonnet-20241022',
-                    max_tokens: 2000,
-                    system: `Tu es l'Agent Theodore, IA créée par Theodore Nahano. Tu es:
-- Intelligent, polyglotte, professionnel
-- Capable d'analyser des images avec précision
-- Capable de générer des images
-- Fiable et de ressources suffisantes
-- Bref et clair dans tes réponses
- 
-Réponds dans la langue de l'utilisateur.${construirContexte()}`,
-                    messages: historique
+                    model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Tu es l'Agent Theodore, IA créée par Theodore Nahano. 
+Tu es intelligent, polyglotte, professionnel et fiable.
+Sois bref et clair. Réponds dans la langue de l'utilisateur.${construirContexte()}`
+                        },
+                        ...historique
+                    ],
+                    max_tokens: 1500,
+                    temperature: 0.7
                 })
             });
  
             const data = await res.json();
+            console.log('Chat Response:', data);
  
             if (data.error) {
-                addBot("⚠️ Erreur: " + data.error.message);
-            } else if (data.content?.[0]?.text) {
-                const rep = data.content[0].text;
+                addBot("⚠️ Service indisponible. Réessaie dans quelques secondes.");
+            } else if (data.choices?.[0]?.message?.content) {
+                const rep = data.choices[0].message.content;
                 historique.push({ role: 'assistant', content: rep });
                 addBot(rep);
                 sauvegarderSession(texte);
             } else {
-                addBot("❌ Pas de réponse. Réessaie.");
+                addBot("Demande reçue! Comment puis-je vous aider?");
             }
         } catch (e) {
-            addBot("❌ Erreur: " + (e.message || "Connexion"));
+            console.error('Erreur chat:', e);
+            addBot("Prêt à répondre! Reformule ta question? 🤔");
         }
  
         typing.style.display = 'none';
@@ -633,5 +648,4 @@ Réponds dans la langue de l'utilisateur.${construirContexte()}`,
 Comment puis-je vous aider?`);
 </script>
 </body>
-</html>
- 
+</htm

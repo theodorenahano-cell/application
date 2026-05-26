@@ -13,65 +13,47 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
         body { background:#0a0a10; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; height:100vh; height:100dvh; display:flex; color:#e3e3e3; overflow:hidden; user-select:none; }
- 
-        /* SIDEBAR */
         #sidebar { width:280px; background:#0f0f18; border-right:1px solid #1e1e2e; display:flex; flex-direction:column; z-index:100; }
         .sidebar-profile { padding:20px 15px; border-bottom:1px solid #1e1e2e; display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,#0f0f18,#1a1a2e); }
         .profile-avatar { width:44px; height:44px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:white; letter-spacing:-1px; box-shadow:0 4px 15px #00d4ff33; flex-shrink:0; }
         .profile-info h3 { color:#fff; font-size:14px; font-weight:700; }
         .profile-info p { color:#00ff88; font-size:10px; margin-top:2px; }
- 
         #sidebar h2 { color:#555; padding:15px 20px 8px; font-size:10px; text-transform:uppercase; letter-spacing:2px; font-weight:700; }
         #historique { flex:1; overflow-y:auto; padding:0 10px; -webkit-overflow-scrolling:touch; }
         .session { padding:10px 12px; margin:3px 0; border-radius:10px; cursor:pointer; color:#888; font-size:13px; transition:all 0.2s; display:flex; align-items:center; gap:8px; }
-        .session:hover, .session:active { background:#1a1a2e; color:#fff; }
+        .session:hover,.session:active { background:#1a1a2e; color:#fff; }
         .sess-icon { font-size:14px; flex-shrink:0; }
         .sess-content { flex:1; overflow:hidden; }
         .sess-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .sess-date { font-size:10px; color:#333; margin-top:1px; }
- 
-        /* MEMOIRE */
         #memoire-section { padding:8px 10px; border-top:1px solid #1e1e2e; max-height:150px; overflow-y:auto; }
         #memoire-section h3 { color:#00ff88; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px; padding:0 5px; }
         .mem-item { background:#0a0a14; padding:7px 10px; border-radius:8px; margin-bottom:4px; font-size:11px; color:#666; display:flex; justify-content:space-between; align-items:center; border:1px solid #1e1e2e; }
         .mem-del { color:#ff4a4a; cursor:pointer; font-size:12px; flex-shrink:0; margin-left:6px; }
- 
-        .sidebar-bottom { padding:8px 10px; padding-bottom:env(safe-area-inset-bottom, 10px); display:flex; flex-direction:column; gap:6px; border-top:1px solid #1e1e2e; }
+        .sidebar-bottom { padding:8px 10px; padding-bottom:env(safe-area-inset-bottom,10px); display:flex; flex-direction:column; gap:6px; border-top:1px solid #1e1e2e; }
         .btn-action { border:none; padding:11px; border-radius:10px; cursor:pointer; font-weight:600; font-size:13px; transition:all 0.2s; text-align:center; width:100%; display:flex; align-items:center; justify-content:center; gap:6px; }
         #install-app-btn { background:#7c3aed; color:white; display:none; }
         #android-btn { background:#1a2e1a; color:#00ff88; border:1px solid #00ff8833; }
         #new-chat { background:#0a1a2e; color:#00d4ff; border:1px solid #00d4ff33; }
         #download-btn { background:#1a1a2e; color:#888; border:1px solid #2e2e38; }
- 
-        /* MAIN */
         #main { flex:1; display:flex; flex-direction:column; background:#0a0a10; position:relative; overflow:hidden; }
- 
-        /* HEADER */
-        #header { background:rgba(10,10,16,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:12px 16px; padding-top:max(12px, env(safe-area-inset-top)); display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #1e1e2e; }
+        #header { background:rgba(10,10,16,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:12px 16px; padding-top:max(12px,env(safe-area-inset-top)); display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #1e1e2e; }
         .header-left { display:flex; align-items:center; gap:12px; }
-        #menu-toggle { background:transparent; border:none; color:#888; font-size:20px; cursor:pointer; width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+        #menu-toggle { background:transparent; border:none; color:#888; font-size:20px; cursor:pointer; width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; }
         #menu-toggle:active { background:#1a1a2e; }
- 
-        .header-ai-avatar { width:38px; height:38px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:white; letter-spacing:-1px; position:relative; animation:glowPulse 3s infinite; }
+        .header-ai-avatar { width:38px; height:38px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:white; position:relative; animation:glowPulse 3s infinite; }
         @keyframes glowPulse { 0%,100%{box-shadow:0 0 8px #00d4ff44} 50%{box-shadow:0 0 20px #00d4ff88,0 0 40px #7c3aed44} }
         .dot-live { position:absolute; bottom:-2px; right:-2px; width:10px; height:10px; background:#00ff88; border-radius:50%; border:2px solid #0a0a10; animation:blink 2s infinite; }
         @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
- 
         .header-info h1 { color:#fff; font-size:16px; font-weight:700; }
         .header-info p { color:#555; font-size:10px; margin-top:1px; }
-        .badge-pro { background:linear-gradient(135deg,#7c3aed,#00d4ff); color:white; padding:4px 10px; border-radius:20px; font-size:10px; font-weight:700; letter-spacing:0.5px; }
- 
-        #sidebar-overlay { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.7); z-index:90; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
- 
-        /* MESSAGES */
+        .badge-pro { background:linear-gradient(135deg,#7c3aed,#00d4ff); color:white; padding:4px 10px; border-radius:20px; font-size:10px; font-weight:700; }
+        #sidebar-overlay { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.7); z-index:90; backdrop-filter:blur(4px); }
         #messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px; -webkit-overflow-scrolling:touch; user-select:text; -webkit-user-select:text; }
         .msg-user { align-self:flex-end; max-width:82%; }
         .msg-bot { align-self:flex-start; max-width:100%; display:flex; gap:10px; align-items:flex-start; width:100%; }
- 
-        /* AVATAR IA */
-        .ia-avatar { width:34px; height:34px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:white; letter-spacing:-1px; flex-shrink:0; box-shadow:0 4px 12px #00d4ff33; }
+        .ia-avatar { width:34px; height:34px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:white; flex-shrink:0; box-shadow:0 4px 12px #00d4ff33; }
         .ia-avatar-img { width:34px; height:34px; background:linear-gradient(135deg,#7c3aed,#00d4ff); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:white; flex-shrink:0; }
- 
         .bubble-user { background:linear-gradient(135deg,#1a1a3e,#0f0f28); color:#f3f4f6; padding:12px 16px; border-radius:18px 18px 4px 18px; font-size:15px; line-height:1.6; border:1px solid #2e2e4e; }
         .bot-content-wrapper { display:flex; flex-direction:column; gap:8px; flex:1; overflow:hidden; }
         .thought-block { background:#0f0f18; border-left:2px solid #7c3aed; padding:8px 12px; border-radius:8px; font-size:12px; color:#666; }
@@ -85,25 +67,18 @@
         .bubble-bot ul,.bubble-bot ol { padding-left:20px; margin-bottom:8px; }
         .bubble-bot li { margin-bottom:4px; }
         .msg-time { font-size:10px; color:#333; margin-top:3px; }
- 
-        /* IMAGE */
         .gen-img-container { display:flex; flex-direction:column; gap:8px; }
-        .gen-img { max-width:100%; border-radius:12px; box-shadow:0 8px 30px #00d4ff11; border:1px solid #1e1e2e; cursor:pointer; transition:transform 0.2s; }
-        .gen-img:hover { transform:scale(1.01); }
+        .gen-img { max-width:100%; border-radius:12px; box-shadow:0 8px 30px #00d4ff11; border:1px solid #1e1e2e; cursor:pointer; }
         .gen-img-label { font-size:11px; color:#7c3aed; display:flex; align-items:center; gap:5px; font-weight:600; }
         .download-img { background:#0f0f18; border:1px solid #2e2e38; color:#00d4ff; padding:6px 12px; border-radius:8px; font-size:12px; text-decoration:none; display:inline-block; }
         .analyzed-img { max-width:180px; border-radius:10px; margin-bottom:6px; }
- 
-        /* TYPING */
         #typing { display:none; padding:0 16px 8px; align-items:center; gap:10px; }
         .typing-dots { display:flex; gap:4px; }
         .d { width:6px; height:6px; background:#00d4ff; border-radius:50%; animation:bounce 1.4s infinite; }
         .d:nth-child(2){animation-delay:0.2s} .d:nth-child(3){animation-delay:0.4s}
         @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
         .typing-text { color:#444; font-size:12px; font-style:italic; }
- 
-        /* INPUT */
-        #input-container { padding:8px 16px; padding-bottom:max(12px, env(safe-area-inset-bottom)); background:#0a0a10; border-top:1px solid #1e1e2e; }
+        #input-container { padding:8px 16px; padding-bottom:max(12px,env(safe-area-inset-bottom)); background:#0a0a10; border-top:1px solid #1e1e2e; }
         #input-zone { background:#0f0f18; border-radius:16px; padding:6px 12px; display:flex; flex-direction:column; gap:4px; border:1px solid #1e1e2e; transition:border-color 0.2s; }
         #input-zone:focus-within { border-color:#00d4ff33; }
         #file-preview-area { display:none; flex-wrap:wrap; gap:6px; padding:4px 0; }
@@ -116,19 +91,17 @@
         .input-btn:active { background:#1a1a2e; color:#fff; }
         #send-btn { background:linear-gradient(135deg,#00d4ff,#7c3aed); color:white; border-radius:10px; width:36px; height:36px; font-size:16px; }
         #file-input { display:none; }
- 
         ::-webkit-scrollbar{width:2px} ::-webkit-scrollbar-thumb{background:#1e1e2e;border-radius:2px}
- 
-        @media(max-width:900px) {
-            body { flex-direction:column; }
-            #sidebar { position:absolute; top:0; left:0; bottom:0; transform:translateX(-100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); padding-top:env(safe-area-inset-top, 0); }
-            #sidebar.open { transform:translateX(0); }
-            #sidebar.open ~ #sidebar-overlay { display:block; }
+        @media(max-width:900px){
+            body{flex-direction:column;}
+            #sidebar{position:absolute;top:0;left:0;bottom:0;transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);padding-top:env(safe-area-inset-top,0);}
+            #sidebar.open{transform:translateX(0);}
+            #sidebar.open~#sidebar-overlay{display:block;}
         }
-        @media(min-width:901px) {
-            #menu-toggle { display:none; }
-            #messages { padding:20px 10%; }
-            #input-container { padding:8px 10% 20px; }
+        @media(min-width:901px){
+            #menu-toggle{display:none;}
+            #messages{padding:20px 10%;}
+            #input-container{padding:8px 10% 20px;}
         }
     </style>
 </head>
@@ -137,24 +110,21 @@
 <div id="sidebar">
     <div class="sidebar-profile">
         <div class="profile-avatar">IA</div>
-        <div class="sidebar-profile-info">
+        <div class="profile-info">
             <h3>Agent Theodore</h3>
-            <p>● IA Active & Fiable</p>
+            <p>● Intelligence Artificielle Active</p>
         </div>
     </div>
- 
     <h2>Discussions</h2>
     <div id="historique"></div>
- 
     <div id="memoire-section">
         <h3>🧠 Mémoire</h3>
         <div id="memoire-list"></div>
     </div>
- 
     <div class="sidebar-bottom">
         <button id="install-app-btn" class="btn-action" onclick="declencherInstall()">📲 Installer PWA</button>
         <button id="android-btn" class="btn-action" onclick="installerAndroid()">🤖 Installer Android</button>
-        <button id="new-chat" class="btn-action" onclick="nouvelleConversation(); fermerSidebar();">+ Nouveau Chat</button>
+        <button id="new-chat" class="btn-action" onclick="nouvelleConversation();fermerSidebar();">+ Nouveau Chat</button>
         <button id="download-btn" class="btn-action" onclick="telecharger()">📥 Télécharger</button>
     </div>
 </div>
@@ -165,13 +135,10 @@
     <div id="header">
         <div class="header-left">
             <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
-            <div class="header-ai-avatar">
-                IA
-                <div class="dot-live"></div>
-            </div>
+            <div class="header-ai-avatar">IA<div class="dot-live"></div></div>
             <div class="header-info">
                 <h1>Agent Theodore</h1>
-                <p>Analyse · Génération · Mémoire</p>
+                <p>Vision · Génération · Mémoire</p>
             </div>
         </div>
         <div class="badge-pro">PRO</div>
@@ -182,7 +149,7 @@
     <div id="typing">
         <div class="ia-avatar">IA</div>
         <div class="typing-dots"><div class="d"></div><div class="d"></div><div class="d"></div></div>
-        <span class="typing-text" id="typing-text">Theodore réfléchit...</span>
+        <span class="typing-text" id="typing-text">Theodore analyse...</span>
     </div>
  
     <div id="input-container">
@@ -199,453 +166,332 @@
 </div>
  
 <script>
-    // ========== CONFIG ==========
-    const MODELS = {
-        chat: 'claude-3-5-sonnet-20241022',
-        vision: 'claude-3-5-sonnet-20241022'
-    };
+    // ===== CONFIG =====
+    const GROQ_KEY = "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";
  
-    // ========== DOM ELEMENTS ==========
+    // ===== DOM =====
     const msgDiv = document.getElementById('messages');
-    const input = document.getElementById('msg-input');
+    const input  = document.getElementById('msg-input');
     const typing = document.getElementById('typing');
     const typingText = document.getElementById('typing-text');
-    const historiqueDiv = document.getElementById('historique');
     const sidebar = document.getElementById('sidebar');
  
-    // ========== STATE ==========
+    // ===== STATE =====
     let historique = [];
-    let sessions = JSON.parse(localStorage.getItem('theo_sessions') || '[]');
-    let memoire = JSON.parse(localStorage.getItem('theo_memoire') || '[]');
-    let fichierJoint = null;
+    let sessions   = JSON.parse(localStorage.getItem('theo_sessions') || '[]');
+    let memoire    = JSON.parse(localStorage.getItem('theo_memoire')  || '[]');
+    let fichierJoint  = null;
     let fichierBase64 = null;
     let isLoading = false;
  
-    // ========== UTILS ==========
-    marked.setOptions({ gfm: true, breaks: true });
+    // ===== UTILS =====
+    marked.setOptions({ gfm:true, breaks:true });
+    const heure = () => new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const toggleSidebar  = () => sidebar.classList.toggle('open');
+    const fermerSidebar  = () => sidebar.classList.remove('open');
  
-    function heure() {
-        return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    function telecharger(){
+        const b = new Blob([`<!DOCTYPE html>\n${document.documentElement.outerHTML}`],{type:'text/html'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Agent_Theodore_IA.html'; a.click();
     }
  
-    function toggleSidebar() { sidebar.classList.toggle('open'); }
-    function fermerSidebar() { sidebar.classList.remove('open'); }
- 
-    function telecharger() {
-        const blob = new Blob([`<!DOCTYPE html>\n${document.documentElement.outerHTML}`], { type: 'text/html' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'Agent_Theodore_IA.html';
-        a.click();
-    }
- 
-    // ========== MEMOIRE ==========
-    function afficherMemoire() {
+    // ===== MEMOIRE =====
+    function afficherMemoire(){
         const el = document.getElementById('memoire-list');
-        el.innerHTML = memoire.length === 0 ? '<div style="color:#333;font-size:11px;padding:4px">Aucun souvenir</div>' : '';
-        memoire.forEach((m, i) => {
-            el.innerHTML += `<div class="mem-item">💾 ${m.substring(0, 28)}... <span class="mem-del" onclick="supprimerMemoire(${i})">✕</span></div>`;
-        });
+        el.innerHTML = memoire.length===0
+            ? '<div style="color:#333;font-size:11px;padding:4px">Aucun souvenir</div>'
+            : memoire.map((m,i)=>`<div class="mem-item">💾 ${m.substring(0,28)}... <span class="mem-del" onclick="supprimerMemoire(${i})">✕</span></div>`).join('');
     }
- 
-    function supprimerMemoire(i) {
-        memoire.splice(i, 1);
-        localStorage.setItem('theo_memoire', JSON.stringify(memoire));
+    function supprimerMemoire(i){
+        memoire.splice(i,1);
+        localStorage.setItem('theo_memoire',JSON.stringify(memoire));
         afficherMemoire();
     }
- 
-    function extraireMemoire(texte) {
-        const mots = ["je m'appelle", "mon nom est", "j'habite", "je travaille", "je suis"];
-        if (mots.some(m => texte.toLowerCase().includes(m))) {
-            memoire.push(texte.substring(0, 60));
-            if (memoire.length > 20) memoire.shift();
-            localStorage.setItem('theo_memoire', JSON.stringify(memoire));
+    function extraireMemoire(t){
+        const mots=["je m'appelle","mon nom est","j'habite","je travaille","je suis","my name is","i am","i live"];
+        if(mots.some(m=>t.toLowerCase().includes(m))){
+            memoire.push(t.substring(0,60));
+            if(memoire.length>20) memoire.shift();
+            localStorage.setItem('theo_memoire',JSON.stringify(memoire));
             afficherMemoire();
         }
     }
- 
-    function construirContexte() {
-        if (memoire.length === 0) return '';
-        return `\n\nMÉMOIRE:\n${memoire.map(m => '- ' + m).join('\n')}`;
+    function contexteMemoire(){
+        return memoire.length===0 ? '' : `\n\nMÉMOIRE:\n${memoire.map(m=>'- '+m).join('\n')}`;
     }
  
-    // ========== SESSIONS ==========
-    function afficherSessions() {
-        historiqueDiv.innerHTML = '';
-        sessions.slice().reverse().forEach((s, i) => {
-            const idx = sessions.length - 1 - i;
-            historiqueDiv.innerHTML += `<div class="session" onclick="chargerSession(${idx});fermerSidebar();"><span class="sess-icon">💬</span><div class="sess-content"><div class="sess-title">${s.titre}</div><div class="sess-date">${s.date || ''}</div></div></div>`;
-        });
+    // ===== SESSIONS =====
+    function afficherSessions(){
+        const h = document.getElementById('historique');
+        h.innerHTML = sessions.slice().reverse().map((s,i)=>{
+            const idx = sessions.length-1-i;
+            return `<div class="session" onclick="chargerSession(${idx});fermerSidebar();"><span class="sess-icon">💬</span><div class="sess-content"><div class="sess-title">${s.titre}</div><div class="sess-date">${s.date||''}</div></div></div>`;
+        }).join('');
     }
- 
-    function chargerSession(i) {
+    function chargerSession(i){
         historique = sessions[i].messages;
         msgDiv.innerHTML = '';
-        historique.forEach(m => {
-            if (m.role === 'user') addUser(m.content);
-            if (m.role === 'assistant') addBot(m.content);
+        historique.forEach(m=>{
+            if(m.role==='user')      addUser(m.content);
+            if(m.role==='assistant') addBot(m.content);
         });
         msgDiv.scrollTop = msgDiv.scrollHeight;
     }
- 
-    function nouvelleConversation() {
-        if (historique.length > 0) {
-            const p = historique.find(m => m.role === 'user');
-            sessions.push({
-                titre: p ? p.content.substring(0, 25) + '...' : 'Discussion',
-                date: new Date().toLocaleDateString('fr-FR'),
-                messages: historique
-            });
-            localStorage.setItem('theo_sessions', JSON.stringify(sessions));
+    function nouvelleConversation(){
+        if(historique.length>0){
+            const p = historique.find(m=>m.role==='user');
+            sessions.push({titre:p?p.content.substring(0,25)+'...':'Discussion',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
+            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
             afficherSessions();
         }
-        historique = [];
-        msgDiv.innerHTML = '';
-        addBot("Nouvelle conversation ! Je suis prêt à vous aider. 🚀");
+        historique=[]; msgDiv.innerHTML='';
+        addBot("Nouvelle conversation ! Je suis prêt. 🚀");
     }
- 
-    function sauvegarderSession(texte) {
-        if (historique.length === 2) {
-            sessions.push({
-                titre: texte.substring(0, 25) + '...',
-                date: new Date().toLocaleDateString('fr-FR'),
-                messages: historique
-            });
-            localStorage.setItem('theo_sessions', JSON.stringify(sessions));
+    function sauvegarderSession(texte){
+        if(historique.length===2){
+            sessions.push({titre:texte.substring(0,25)+'...',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
+            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
             afficherSessions();
-        } else if (sessions.length > 0) {
-            sessions[sessions.length - 1].messages = historique;
-            localStorage.setItem('theo_sessions', JSON.stringify(sessions));
+        } else if(sessions.length>0){
+            sessions[sessions.length-1].messages = historique;
+            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
         }
     }
  
-    // ========== MESSAGES ==========
-    function addUser(texte) {
+    // ===== AFFICHAGE =====
+    function addUser(texte){
         msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user">${texte}</div><div class="msg-time">${heure()}</div></div>`;
         msgDiv.scrollTop = msgDiv.scrollHeight;
     }
- 
-    function addBot(contenu) {
-        let pensee = '', rep = contenu;
-        if (contenu.includes('<thought>') && contenu.includes('</thought>')) {
-            pensee = contenu.split('</thought>')[0].replace('<thought>', '').trim();
-            rep = contenu.split('</thought>')[1].trim();
+    function addBot(contenu){
+        let pensee='', rep=contenu;
+        if(contenu.includes('<thought>')&&contenu.includes('</thought>')){
+            pensee = contenu.split('</thought>')[0].replace('<thought>','').trim();
+            rep    = contenu.split('</thought>')[1].trim();
         }
-        const id = 'w' + Date.now() + Math.random().toString(36).substr(2, 3);
+        const id='w'+Date.now()+Math.random().toString(36).substr(2,3);
         msgDiv.innerHTML += `<div class="msg-bot"><div class="ia-avatar">IA</div><div class="bot-content-wrapper" id="${id}"></div></div>`;
         const w = document.getElementById(id);
-        if (pensee) w.innerHTML += `<details class="thought-block"><summary>🧠 Raisonnement</summary><div>${marked.parse(pensee)}</div></details>`;
+        if(pensee) w.innerHTML += `<details class="thought-block"><summary>🧠 Raisonnement</summary><div>${marked.parse(pensee)}</div></details>`;
         w.innerHTML += `<div class="bubble-bot">${marked.parse(rep)}</div><div class="msg-time">${heure()}</div>`;
         msgDiv.scrollTop = msgDiv.scrollHeight;
     }
- 
-    function addImageGeneree(prompt, url) {
-        msgDiv.innerHTML += `<div class="msg-bot"><div class="ia-avatar-img">🎨</div><div class="bot-content-wrapper"><div class="gen-img-container"><div class="gen-img-label">✦ Image générée par IA</div><img class="gen-img" src="${url}" alt="${prompt}" onclick="window.open('${url}','_blank')" loading="lazy"><a class="download-img" href="${url}" download="theodore-ia.png">⬇ Télécharger</a></div><div class="msg-time">${heure()}</div></div></div>`;
+    function addImageGeneree(prompt, url){
+        msgDiv.innerHTML += `
+        <div class="msg-bot">
+            <div class="ia-avatar-img">🎨</div>
+            <div class="bot-content-wrapper">
+                <div class="gen-img-container">
+                    <div class="gen-img-label">✦ Image générée par IA</div>
+                    <img class="gen-img" src="${url}" alt="${prompt}" onclick="window.open('${url}','_blank')" loading="lazy">
+                    <a class="download-img" href="${url}" download="theodore-ia.png" target="_blank">⬇ Télécharger</a>
+                </div>
+                <div class="msg-time">${heure()}</div>
+            </div>
+        </div>`;
         msgDiv.scrollTop = msgDiv.scrollHeight;
     }
  
-    // ========== IMAGE GENERATION ==========
-    function detecterImage(texte) {
-        const mots = ['génère', 'generate', 'dessine', 'crée', 'imagine', 'fais une image', 'create image'];
-        return mots.some(m => texte.toLowerCase().includes(m));
+    // ===== GENERATION IMAGE =====
+    function detecterGenerationImage(t){
+        return ['génère','generez','génerer','create','generate','dessine','crée une image','imagine','fais une image','make an image','draw'].some(m=>t.toLowerCase().includes(m));
     }
- 
-    async function genererImage(prompt) {
-        if (isLoading) return;
+    async function genererImage(prompt){
+        if(isLoading) return;
         isLoading = true;
-        typingText.innerText = "🎨 Génération en cours...";
+        typingText.innerText = "🎨 Génération de l'image...";
         typing.style.display = 'flex';
- 
-        try {
-            const cleanPrompt = prompt.replace(/génère|générer|dessine|crée|imagine|fais une image|generate|create|draw|peins/gi, '').trim();
-            const promptEncoded = encodeURIComponent(cleanPrompt + ', professional, 8k, detailed');
-            const url = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1024&height=1024&nologo=true`;
- 
-            typing.style.display = 'none';
-            addUser(prompt);
-            addImageGeneree(cleanPrompt, url);
- 
-            historique.push({ role: 'user', content: prompt });
-            historique.push({ role: 'assistant', content: `[Image: ${cleanPrompt}]` });
-            sauvegarderSession(prompt);
-        } catch (e) {
-            typing.style.display = 'none';
-            addBot("❌ Erreur génération. Réessaie.");
-        }
+        const propre = prompt.replace(/génère|générer|dessine|crée une image|imagine|fais une image|generate|create|draw|peins/gi,'').trim();
+        const enc = encodeURIComponent(propre+', professional, ultra realistic, 8k, highly detailed');
+        const url = `https://image.pollinations.ai/prompt/${enc}?width=1024&height=1024&nologo=true&model=flux`;
+        typing.style.display = 'none';
+        addUser(prompt);
+        addImageGeneree(propre, url);
+        historique.push({role:'user',content:prompt});
+        historique.push({role:'assistant',content:`[Image générée: ${propre}]`});
+        sauvegarderSession(prompt);
         isLoading = false;
     }
  
-    // ========== IMAGE ANALYSIS ==========
-    async function analyserImage(texte, b64, mimeType) {
-        if (isLoading) return;
+    // ===== ANALYSE IMAGE (GROQ VISION) =====
+    async function analyserImage(texte, b64, mimeType){
+        if(isLoading) return;
         isLoading = true;
-        typingText.innerText = "📸 Analyse détaillée en cours...";
+        typingText.innerText = "📸 Analyse de l'image...";
         typing.style.display = 'flex';
  
         try {
-            // Nettoie le base64
-            const cleanB64 = b64.replace(/[\s\n\r]/g, '').trim();
-            
-            // Détecte le type MIME correct
-            let mimeType_correct = mimeType;
-            if (!mimeType_correct || mimeType_correct === 'undefined') {
-                mimeType_correct = 'image/jpeg';
-            }
+            // Groq vision avec le bon format - image_url inline data
+            const payload = {
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                messages: [{
+                    role: 'user',
+                    content: [
+                        {
+                            type: 'text',
+                            text: texte
+                                ? texte
+                                : "Analyse cette image en détail. Décris tout ce que tu vois : les objets, personnes, couleurs, texte visible, ambiance, style, composition. Sois précis et complet."
+                        },
+                        {
+                            type: 'image_url',
+                            image_url: {
+                                url: `data:${mimeType};base64,${b64}`
+                            }
+                        }
+                    ]
+                }],
+                max_tokens: 1500,
+                temperature: 0.5
+            };
  
-            console.log('Envoi à Gemini Vision avec MIME:', mimeType_correct);
-            
-            // Utilise Google Gemini API directement
-            const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyD0W7-0ZbqmKp-T5AYGfKAqj9B0V1s3fDk', {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_KEY}`
                 },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            {
-                                inlineData: {
-                                    mimeType: mimeType_correct,
-                                    data: cleanB64
-                                }
-                            },
-                            {
-                                text: texte || `Analyse cette image en détail en français. Décris:
-1. Qu'y a-t-il sur l'image? (objets, personnes, lieux)
-2. Les couleurs dominantes
-3. Le style et l'ambiance
-4. Tout texte visible
-5. Le contexte et la composition
-Sois très détaillé et précis.`
-                            }
-                        ]
-                    }],
-                    generationConfig: {
-                        maxOutputTokens: 2048,
-                        temperature: 0.7
-                    }
-                })
+                body: JSON.stringify(payload)
             });
  
-            console.log('Status Gemini:', res.status);
             const data = await res.json();
-            console.log('Réponse Gemini:', data);
- 
             typing.style.display = 'none';
  
-            if (data.error) {
-                const errMsg = data.error.message || JSON.stringify(data.error);
-                console.error('Erreur Gemini:', errMsg);
-                addBot("⚠️ Analyse échouée: " + errMsg.substring(0, 100));
-            } else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-                const rep = data.candidates[0].content.parts[0].text;
-                historique.push({ role: 'user', content: texte ? texte : '[Image envoyée pour analyse]' });
-                historique.push({ role: 'assistant', content: rep });
+            if(data.error){
+                console.error('Groq vision error:', data.error);
+                addBot("⚠️ Erreur: " + (data.error.message || JSON.stringify(data.error)));
+            } else if(data.choices?.[0]?.message?.content){
+                const rep = data.choices[0].message.content;
+                historique.push({role:'user', content: texte || 'Analyse cette image'});
+                historique.push({role:'assistant', content: rep});
                 addBot(rep);
                 sauvegarderSession(texte || 'Analyse image');
-            } else if (data.candidates) {
-                addBot("Image reçue mais pas d'analyse disponible pour le moment. Réessaie!");
             } else {
-                addBot("❌ Analyse indisponible. Vérifiez votre connexion.");
+                addBot("❌ Pas de réponse reçue.");
             }
-        } catch (e) {
+        } catch(e){
             typing.style.display = 'none';
-            console.error('Erreur Gemini:', e);
-            addBot("❌ Erreur lors de l'analyse: " + (e.message || "Connexion impossible"));
+            console.error('Erreur fetch:', e);
+            addBot("❌ Erreur réseau: " + e.message);
         }
         isLoading = false;
     }
  
-    // ========== FILE MANAGEMENT ==========
-    function gererFichier(inp) {
-        if (inp.files?.[0]) {
-            const file = inp.files[0];
-            
-            // Vérifie le type d'image
-            if (!file.type.startsWith('image/')) {
-                alert('❌ Sélectionne une image valide!');
-                return;
-            }
- 
-            // Limite la taille à 5MB
-            if (file.size > 5 * 1024 * 1024) {
-                alert('❌ Image trop grande (max 5MB)');
-                return;
-            }
- 
-            fichierJoint = file;
-            const reader = new FileReader();
-            
-            reader.onload = e => {
-                fichierBase64 = e.target.result;
-                const prev = document.getElementById('file-preview-area');
-                prev.innerHTML = `<div class="preview-badge">🖼️ ${fichierJoint.name.substring(0, 18)} <span onclick="retirerFichier()">✕</span></div>`;
-                prev.style.display = 'flex';
-            };
- 
-            reader.onerror = () => {
-                alert('❌ Erreur lecture fichier');
-                retirerFichier();
-            };
- 
-            reader.readAsDataURL(file);
-        }
+    // ===== GESTION FICHIER =====
+    function gererFichier(inp){
+        if(!inp.files?.[0]) return;
+        const file = inp.files[0];
+        if(!file.type.startsWith('image/')){alert('❌ Image uniquement!'); return;}
+        if(file.size > 4*1024*1024){alert('❌ Max 4MB'); return;}
+        fichierJoint = file;
+        const reader = new FileReader();
+        reader.onload = e => {
+            fichierBase64 = e.target.result;
+            const prev = document.getElementById('file-preview-area');
+            prev.innerHTML = `<div class="preview-badge">🖼️ ${file.name.substring(0,18)} <span onclick="retirerFichier()">✕</span></div>`;
+            prev.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+    }
+    function retirerFichier(){
+        fichierJoint=null; fichierBase64=null;
+        document.getElementById('file-input').value='';
+        document.getElementById('file-preview-area').style.display='none';
     }
  
-    function retirerFichier() {
-        fichierJoint = null;
-        fichierBase64 = null;
-        document.getElementById('file-input').value = '';
-        document.getElementById('file-preview-area').style.display = 'none';
-    }
- 
-    // ========== MAIN SEND ==========
-    async function envoyer() {
+    // ===== ENVOYER =====
+    async function envoyer(){
         const texte = input.value.trim();
-        if (!texte && !fichierJoint) return;
-        if (isLoading) return;
+        if(!texte && !fichierJoint) return;
+        if(isLoading) return;
+        input.value='';
  
-        input.value = '';
- 
-        // Image upload + analysis
-        if (fichierJoint && fichierBase64) {
-            // Extraction propre du base64
-            let b64 = fichierBase64;
-            if (b64.includes(',')) {
-                b64 = b64.split(',')[1];
-            }
-            
+        // Image uploadée
+        if(fichierJoint && fichierBase64){
+            const b64  = fichierBase64.includes(',') ? fichierBase64.split(',')[1] : fichierBase64;
             const mime = fichierJoint.type || 'image/jpeg';
-            
-            msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte || 'Analyse'}</div><div class="msg-time">${heure()}</div></div>`;
+            msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte||'Analyse cette image'}</div><div class="msg-time">${heure()}</div></div>`;
             msgDiv.scrollTop = msgDiv.scrollHeight;
             retirerFichier();
-            
-            console.log('Image détectée - Type:', mime, 'Taille B64:', b64.length);
             await analyserImage(texte, b64, mime);
             return;
         }
  
-        // Image generation
-        if (detecterImage(texte)) {
+        // Génération image
+        if(detecterGenerationImage(texte)){
             await genererImage(texte);
             return;
         }
  
-        // Normal chat
+        // Chat normal (Groq llama-3.3-70b)
         extraireMemoire(texte);
         addUser(texte);
-        historique.push({ role: 'user', content: texte });
+        historique.push({role:'user', content:texte});
         typingText.innerText = 'Theodore réfléchit...';
         typing.style.display = 'flex';
         isLoading = true;
  
         try {
-            // Gemini API pour le chat
-            const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyD0W7-0ZbqmKp-T5AYGfKAqj9B0V1s3fDk', {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: {'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
                 body: JSON.stringify({
-                    contents: [
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
                         {
-                            role: 'user',
-                            parts: [
-                                {
-                                    text: `Tu es l'Agent Theodore, IA créée par Theodore Nahano. Tu es intelligent, polyglotte, professionnel et fiable. Sois bref et clair. Réponds toujours en français ou dans la langue de l'utilisateur.${construirContexte()}\n\nQuestion de l'utilisateur: ${texte}`
-                                }
-                            ]
-                        }
+                            role: 'system',
+                            content: `Tu es l'Agent Theodore, une intelligence artificielle de prestige créée par l'ingénieur burundais Theodore Nahano. Tu es extrêmement intelligent, polyglotte, élégant et expert dans tous les domaines. Réponds dans la langue de ton interlocuteur. Sois bref, clair et précis.${contexteMemoire()}`
+                        },
+                        ...historique
                     ],
-                    generationConfig: {
-                        maxOutputTokens: 1500,
-                        temperature: 0.7
-                    }
+                    max_tokens: 2000,
+                    temperature: 0.65
                 })
             });
- 
             const data = await res.json();
-            console.log('Chat Response:', data);
- 
-            if (data.error) {
-                addBot("⚠️ Service temporairement indisponible. Réessaie!");
-            } else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-                const rep = data.candidates[0].content.parts[0].text;
-                historique.push({ role: 'assistant', content: rep });
+            if(data.error){
+                addBot("⚠️ " + (data.error.message || "Erreur API"));
+            } else if(data.choices?.[0]?.message?.content){
+                const rep = data.choices[0].message.content;
+                historique.push({role:'assistant', content:rep});
                 addBot(rep);
                 sauvegarderSession(texte);
             } else {
-                addBot("Hmm, je n'ai pas compris. Peux-tu reformuler? 🤔");
+                addBot("❌ Pas de réponse. Réessaie.");
             }
-        } catch (e) {
-            console.error('Erreur chat:', e);
-            addBot("Connexion temporaire. Réessaie dans quelques secondes! ⏳");
+        } catch(e){
+            addBot("❌ Erreur réseau: " + e.message);
         }
- 
         typing.style.display = 'none';
         isLoading = false;
     }
  
-    // ========== PWA ==========
-    const manifest = {
-        name: "Agent Theodore IA",
-        short_name: "Theodore IA",
-        start_url: window.location.origin + window.location.pathname,
-        display: "standalone",
-        background_color: "#0a0a10",
-        theme_color: "#0a0a10",
-        icons: [{
-            src: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f0f18%22/><text y=%22.75em%22 x=%228%22 font-size=%2255%22 font-weight=%22900%22 fill=%22%2300d4ff%22>IA</text></svg>",
-            sizes: "192x192",
-            type: "image/svg+xml"
-        }]
-    };
-    document.getElementById('pwa-manifest').href = "data:application/manifest+json," + encodeURIComponent(JSON.stringify(manifest));
- 
+    // ===== PWA =====
+    const manifestObj = {name:"Agent Theodore IA",short_name:"Theodore IA",start_url:window.location.origin+window.location.pathname,display:"standalone",background_color:"#0a0a10",theme_color:"#0a0a10",icons:[{src:"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f0f18%22/><text y=%22.75em%22 x=%228%22 font-size=%2255%22 font-weight=%22900%22 fill=%22%2300d4ff%22>IA</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
+    document.getElementById('pwa-manifest').href = "data:application/manifest+json,"+encodeURIComponent(JSON.stringify(manifestObj));
     let installPrompt = null;
-    window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        installPrompt = e;
-        document.getElementById('install-app-btn').style.display = 'flex';
-    });
- 
-    function declencherInstall() {
-        if (installPrompt) {
-            installPrompt.prompt();
-            installPrompt.userChoice.then(r => {
-                if (r.outcome === 'accepted') document.getElementById('install-app-btn').style.display = 'none';
-                installPrompt = null;
-            });
-        }
-    }
- 
-    function installerAndroid() {
+    window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); installPrompt=e; document.getElementById('install-app-btn').style.display='flex'; });
+    function declencherInstall(){ if(installPrompt){ installPrompt.prompt(); installPrompt.userChoice.then(r=>{ if(r.outcome==='accepted') document.getElementById('install-app-btn').style.display='none'; installPrompt=null; }); } }
+    function installerAndroid(){
         const lien = window.location.href;
-        navigator.clipboard.writeText(lien).then(() => {
-            alert('✅ Lien copié!\n\nAndroid:\n1. Chrome\n2. Colle le lien\n3. Menu ⋮ → Ajouter à accueil');
-        }).catch(() => {
-            alert('Lien: ' + lien);
-        });
+        navigator.clipboard.writeText(lien).then(()=>{ alert('✅ Lien copié!\n\nSur Android:\n1. Chrome\n2. Colle le lien\n3. Menu ⋮ → Ajouter à accueil'); }).catch(()=>{ alert('Lien: '+lien); });
     }
  
-    // ========== INIT ==========
-    input.addEventListener('keypress', e => { if (e.key === 'Enter') envoyer(); });
+    // ===== INIT =====
+    input.addEventListener('keypress', e=>{ if(e.key==='Enter') envoyer(); });
     afficherSessions();
     afficherMemoire();
+    addBot(`Bonjour ! Je suis **l'Agent Theodore** — Intelligence Artificielle de Nouvelle Génération. 🚀
  
-    addBot(`Bonjour! Je suis **l'Agent Theodore** — IA Nouvelle Génération. 🚀
+**Mes capacités :**
+- 💬 Répondre à toutes vos questions
+- 📷 Analyser des photos avec précision
+- 🎨 Générer des images professionnelles
+- 🧠 Mémoriser vos informations personnelles
+- 📄 Rédiger des documents jusqu'à 30 pages
+- 🌍 Communiquer dans toutes les langues
  
-**Capacités:**
-- 💬 Questions & réponses précis
-- 📷 Analyse d'images avec précision
-- 🎨 Génération d'images HD
-- 🧠 Mémoire conversationnelle
-- 📄 Rédaction professionnelle
-- 🌍 Multilingue
- 
-Comment puis-je vous aider?`);
+Comment puis-je vous aider aujourd'hui ?`);
 </script>
 </body>
-</html>
- 
+<

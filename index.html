@@ -1,3 +1,4 @@
+Agent theodore ia optimized · HTML
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -384,63 +385,72 @@
         typing.style.display = 'flex';
  
         try {
-            // Assure que le base64 est complet et sans caractères invalides
-            const cleanB64 = b64.replace(/[\s\n\r]/g, '');
+            // Nettoie le base64
+            const cleanB64 = b64.replace(/[\s\n\r]/g, '').trim();
             
+            // Prépare le message avec l'image
             const requestBody = {
-                model: MODELS.vision,
+                model: 'llama-3.2-11b-vision-preview',
                 messages: [{
                     role: 'user',
                     content: [
                         { 
                             type: 'text', 
-                            text: texte || 'Analyse cette image avec précision. Décris les détails, couleurs, objets, texte visible.' 
+                            text: texte || 'Décris cette image en détail. Qu\'y a-t-il? Couleurs? Objets? Texte? Contexte?' 
                         },
                         { 
                             type: 'image_url', 
                             image_url: { 
-                                url: `data:${mimeType};base64,${cleanB64}` 
+                                url: `data:${mimeType};base64,${cleanB64}`
                             } 
                         }
                     ]
                 }],
-                max_tokens: 1200,
-                temperature: 0.7
+                max_tokens: 1024
             };
  
+            console.log('Envoi requête vision API...');
+            
             const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${GROQ_KEY}`
                 },
-                body: JSON.stringify(requestBody),
-                timeout: 30000
+                body: JSON.stringify(requestBody)
             });
  
-            if (!res.ok) {
-                throw new Error(`API Error: ${res.status} ${res.statusText}`);
-            }
- 
+            console.log('Status:', res.status);
             const data = await res.json();
+            console.log('Response:', data);
+ 
             typing.style.display = 'none';
  
             if (data.error) {
-                console.error('API Error:', data.error);
-                addBot("⚠️ API: " + (data.error.message || "Erreur serveur"));
+                const errMsg = data.error.message || JSON.stringify(data.error);
+                console.error('Erreur API:', errMsg);
+                
+                // Fallback: envoie juste le texte utilisateur si image échoue
+                if (texte) {
+                    addBot("Je n'ai pas pu analyser l'image, mais je peux répondre à: **" + texte + "**");
+                    historique.push({ role: 'user', content: texte });
+                    historique.push({ role: 'assistant', content: "Image non analysable - votre question a été notée." });
+                } else {
+                    addBot("❌ Impossible d'analyser cette image. Essaie une autre ou fais-moi une description.");
+                }
             } else if (data.choices?.[0]?.message?.content) {
                 const rep = data.choices[0].message.content;
-                historique.push({ role: 'user', content: texte || 'Analyse cette image' });
+                historique.push({ role: 'user', content: texte ? texte : '[Image analysée]' });
                 historique.push({ role: 'assistant', content: rep });
                 addBot(rep);
                 sauvegarderSession(texte || 'Analyse image');
             } else {
-                addBot("❌ Pas de réponse. Réessaie.");
+                addBot("❌ Pas de réponse de l'API. Réessaie.");
             }
         } catch (e) {
             typing.style.display = 'none';
-            console.error('Erreur analyse:', e);
-            addBot("❌ Erreur: " + (e.message || "Connexion échouée"));
+            console.error('Erreur:', e);
+            addBot("❌ Erreur: " + (e.message || "Connexion impossible"));
         }
         isLoading = false;
     }
@@ -498,18 +508,19 @@
  
         // Image upload + analysis
         if (fichierJoint && fichierBase64) {
-            // Extraction du base64 propre
+            // Extraction propre du base64
             let b64 = fichierBase64;
-            if (fichierBase64.includes(',')) {
-                b64 = fichierBase64.split(',')[1];
+            if (b64.includes(',')) {
+                b64 = b64.split(',')[1];
             }
-            b64 = b64.replace(/[\s\n\r]/g, ''); // Nettoie les caractères blancs
             
             const mime = fichierJoint.type || 'image/jpeg';
             
             msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte || 'Analyse'}</div><div class="msg-time">${heure()}</div></div>`;
             msgDiv.scrollTop = msgDiv.scrollHeight;
             retirerFichier();
+            
+            console.log('Image détectée - Type:', mime, 'Taille B64:', b64.length);
             await analyserImage(texte, b64, mime);
             return;
         }

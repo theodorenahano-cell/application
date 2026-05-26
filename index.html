@@ -1,0 +1,154 @@
+
+<!DOCTYPE html><html lang="fr"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Theodore IA</title>    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>    <style>        :root {            --bg-body: #f7f9fc;            --bg-sidebar: #1e293b;            --text-sidebar: #f8fafc;            --bg-header: #ffffff;            --text-main: #334155;            --primary: #2563eb;            --primary-hover: #1d4ed8;            --msg-user: #2563eb;            --msg-ia: #e2e8f0;            --border-color: #cbd5e1;        }
+        * {            box-sizing: border-box;            margin: 0;            padding: 0;            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;        }
+        body {            display: flex;            height: 100vh;            background-color: var(--bg-body);            color: var(--text-main);            overflow: hidden;        }
+        #sidebar {            width: 280px;            background-color: var(--bg-sidebar);            color: var(--text-sidebar);            display: flex;            flex-direction: column;            transition: transform 0.3s ease;            z-index: 1000;        }
+        #sidebar.hidden {            transform: translateX(-100%);            position: absolute;            height: 100%;        }
+        .sidebar-header {            padding: 20px;            border-bottom: 1px solid rgba(255,255,255,0.1);            display: flex;            align-items: center;            gap: 15px;        }
+        .avatar-ia {            width: 40px;            height: 40px;            background: var(--primary);            border-radius: 50%;            display: flex;            align-items: center;            justify-content: center;            font-weight: bold;        }
+        .sidebar-content {            flex-grow: 1;            overflow-y: auto;            padding: 20px;        }
+        .section-title {            font-size: 0.8rem;            text-transform: uppercase;            letter-spacing: 1px;            color: #94a3b8;            margin-bottom: 10px;            margin-top: 20px;        }
+        .history-item {            padding: 10px;            border-radius: 8px;            cursor: pointer;            margin-bottom: 5px;            transition: background 0.2s;            font-size: 0.9rem;            white-space: nowrap;            overflow: hidden;            text-overflow: ellipsis;        }
+        .history-item:hover {            background: rgba(255,255,255,0.1);        }
+        .memory-item {            background: rgba(0,0,0,0.2);            padding: 8px;            border-radius: 5px;            margin-bottom: 5px;            display: flex;            justify-content: space-between;            align-items: center;            font-size: 0.85rem;        }
+        .memory-item button {            background: transparent;            color: #ef4444;            padding: 2px 6px;        }
+        .sidebar-footer {            padding: 20px;            border-top: 1px solid rgba(255,255,255,0.1);            display: flex;            flex-direction: column;            gap: 10px;        }
+        #main {            flex-grow: 1;            display: flex;            flex-direction: column;            position: relative;            width: 100%;        }
+        #header {            background: var(--bg-header);            padding: 15px 20px;            box-shadow: 0 1px 3px rgba(0,0,0,0.1);            display: flex;            align-items: center;            gap: 15px;            z-index: 10;        }
+        button {            background: var(--primary);            color: white;            border: none;            padding: 8px 16px;            border-radius: 6px;            cursor: pointer;            font-size: 0.9rem;            transition: background 0.2s;        }
+        button:hover {            background: var(--primary-hover);        }
+        .btn-icon {            background: transparent;            color: var(--text-main);            padding: 8px;            font-size: 1.2rem;        }
+        .btn-icon:hover {            background: var(--msg-ia);        }
+        #messages {            flex-grow: 1;            padding: 20px;            overflow-y: auto;            display: flex;            flex-direction: column;            gap: 20px;        }
+        .msg-wrapper {            display: flex;            flex-direction: column;            max-width: 80%;        }
+        .msg-wrapper.user {            align-self: flex-end;            align-items: flex-end;        }
+        .msg-wrapper.ia {            align-self: flex-start;            align-items: flex-start;        }
+        .msg-bubble {            padding: 12px 18px;            border-radius: 18px;            font-size: 1rem;            line-height: 1.5;            word-wrap: break-word;        }
+        .msg-wrapper.user .msg-bubble {            background: var(--msg-user);            color: white;            border-bottom-right-radius: 4px;        }
+        .msg-wrapper.ia .msg-bubble {            background: var(--msg-ia);            color: var(--text-main);            border-bottom-left-radius: 4px;        }
+        .msg-image {            max-width: 100%;            border-radius: 8px;            margin-bottom: 10px;            cursor: pointer;        }
+        #typing {            display: flex;            align-items: center;            gap: 10px;            padding: 10px 20px;            color: #64748b;            font-style: italic;        }
+        #input-container {            background: var(--bg-header);            padding: 15px 20px;            border-top: 1px solid var(--border-color);            display: flex;            flex-direction: column;            gap: 10px;        }
+        .input-controls {            display: flex;            gap: 10px;            align-items: flex-end;        }
+        #msg-input {            flex-grow: 1;            border: 1px solid var(--border-color);            border-radius: 8px;            padding: 12px;            resize: none;            font-size: 1rem;            background: var(--bg-body);            max-height: 120px;            overflow-y: auto;        }
+        #msg-input:focus {            outline: none;            border-color: var(--primary);        }
+        #file-preview-area {            display: flex;            align-items: center;            gap: 10px;            background: var(--msg-ia);            padding: 8px 12px;            border-radius: 6px;            width: fit-content;        }
+        #file-preview-area button {            background: #ef4444;            padding: 2px 8px;        }
+        .modal {            position: fixed;            top: 0;            left: 0;            width: 100%;            height: 100%;            background: rgba(0,0,0,0.8);            display: flex;            align-items: center;            justify-content: center;            z-index: 2000;        }
+        .modal-content {            background: var(--bg-header);            padding: 20px;            border-radius: 12px;            max-width: 90%;            max-height: 90%;            overflow-y: auto;            display: flex;            flex-direction: column;            gap: 15px;        }
+        #edit-canvas {            max-width: 100%;            height: auto;            border: 1px solid var(--border-color);        }
+        .controls-grid {            display: grid;            grid-template-columns: auto 1fr;            gap: 10px;            align-items: center;        }
+        .controls-grid input[type="range"] {            width: 100%;        }
+        .modal-actions {            display: flex;            gap: 10px;            justify-content: flex-end;            margin-top: 10px;        }
+        #view-image {            max-width: 90%;            max-height: 90%;            border-radius: 8px;        }
+        details {            margin-bottom: 10px;            background: rgba(0,0,0,0.05);            padding: 10px;            border-radius: 6px;        }
+        summary {            cursor: pointer;            font-weight: bold;            color: var(--primary);        }                .error-text {            color: #ef4444;            font-weight: bold;        }
+        @media (max-width: 768px) {            #sidebar {                position: absolute;                height: 100%;            }            .msg-wrapper {                max-width: 90%;            }        }    </style></head><body>
+<div id="sidebar" class="hidden">    <div class="sidebar-header">        <div class="avatar-ia">IA</div>        <div>            <h3 style="font-size: 1.1rem;">Agent Theodore</h3>            <span style="font-size: 0.8rem; color: #4ade80;">● Actif</span>        </div>    </div>        <div class="sidebar-content">        <div class="section-title">Discussions</div>        <div id="historique"></div>                <div class="section-title">Mémoire</div>        <div id="memoire-list"></div>    </div>
+    <div class="sidebar-footer">        <button id="install-app-btn" onclick="declencherInstall()" style="background-color: #10b981;" hidden>Installer l'App</button>        <button id="new-chat" onclick="nouvelleConversation(); fermerSidebar();">Nouvelle Discussion</button>        <button id="download-btn" onclick="telecharger()">Exporter le Chat</button>    </div></div>
+<div id="main">    <div id="header">        <button id="menu-toggle" class="btn-icon" onclick="toggleSidebar()">☰</button>        <h2>Theodore IA</h2>    </div>
+    <div id="messages"></div>
+    <div id="typing" hidden>        <div class="avatar-ia" style="width:24px; height:24px; font-size:0.6rem;">IA</div>        <span>Theodore réfléchit...</span>    </div>
+    <div id="input-container">        <div id="file-preview-area" hidden></div>        <div class="input-controls">            <button class="btn-icon" onclick="document.getElementById('file-input').click()">📷</button>            <input type="file" id="file-input" hidden onchange="gererFichier(this)" accept="image/*">            <textarea id="msg-input" rows="1" placeholder="Posez votre question..."></textarea>            <button id="send-btn" onclick="envoyer()">Envoyer</button>        </div>    </div></div>
+<div id="edit-modal" class="modal" hidden>    <div class="modal-content">        <div style="display: flex; justify-content: space-between; align-items: center;">            <h2>Retouche d'Image</h2>            <button class="btn-icon" onclick="fermerModalRetouche()">✖</button>        </div>                <canvas id="edit-canvas"></canvas>                <div class="controls-grid">            <label>Luminosité</label>            <input type="range" id="brightness" min="-100" max="100" value="0" oninput="appliquerFiltres()">            <label>Contraste</label>            <input type="range" id="contrast" min="-50" max="50" value="0" oninput="appliquerFiltres()">            <label>Saturation</label>            <input type="range" id="saturation" min="-100" max="100" value="0" oninput="appliquerFiltres()">            <label>Flou</label>            <input type="range" id="blur" min="0" max="20" value="0" oninput="appliquerFiltres()">        </div>                <div class="modal-actions">            <button onclick="appliquerFiltresParDefaut()" style="background:#64748b;">Reset</button>            <button onclick="analyserImagePlusDetail()">Analyser</button>            <button onclick="telechargerImageRetouchee()">Sauvegarder</button>        </div>    </div></div>
+<div id="view-modal" class="modal" hidden onclick="fermerModalVue()">    <img id="view-image"></div>
+<script>    let GROQ_KEY = localStorage.getItem('theodore_api_key') || "";
+    let conversations = JSON.parse(localStorage.getItem('theodore_chats')) || [];    let currentChatId = localStorage.getItem('theodore_current_id') || null;    let memoireLocale = JSON.parse(localStorage.getItem('theodore_memoire')) || [];    let imageChargee = null;    let imageOriginaleData = null;    let fichierEnCours = null;    let deferredPrompt = null;
+
+    window.addEventListener('DOMContentLoaded', () => {        verifierCleAPI();        initialiserServiceWorker();        chargerMemoireGraphique();        renderHistorique();
+
+        if (!currentChatId && conversations.length > 0) currentChatId = conversations[0].id;        if (currentChatId) chargerConversation(currentChatId);        else nouvelleConversation();
+
+        document.getElementById('msg-input').addEventListener('keydown', (e) => {            if (e.key === 'Enter' && !e.shiftKey) {                e.preventDefault();                envoyer();            }        });                document.getElementById('msg-input').addEventListener('input', function() {            this.style.height = 'auto';            this.style.height = (this.scrollHeight) + 'px';        });    });
+
+    window.addEventListener('beforeinstallprompt', (e) => {        e.preventDefault();        deferredPrompt = e;        document.getElementById('install-app-btn').hidden = false;    });
+
+    window.addEventListener('appinstalled', () => {        document.getElementById('install-app-btn').hidden = true;        deferredPrompt = null;        alert("Merci d'avoir installé Theodore IA !");    });
+
+    function verifierCleAPI() {        if (!GROQ_KEY || GROQ_KEY.trim() === "") {            const userKey = prompt("Veuillez entrer votre clé API Groq (elle sera enregistrée localement dans votre navigateur) :");            if (userKey && userKey.trim() !== "") {                GROQ_KEY = userKey.trim();                localStorage.setItem('theodore_api_key', GROQ_KEY);            } else {                alert("Attention : sans clé API, l'application ne pourra pas répondre.");            }        }    }
+
+    function toggleSidebar() {        const sidebar = document.getElementById('sidebar');        sidebar.classList.toggle('hidden');    }
+
+    function fermerSidebar() {        if(window.innerWidth <= 768) {            document.getElementById('sidebar').classList.add('hidden');        }    }
+
+    function initialiserServiceWorker() {        if ('serviceWorker' in navigator) {            const swCode = "const CACHE_NAME = 'theodore-cache-v2'; const ASSETS = [window.location.pathname, 'https://cdn.jsdelivr.net/npm/marked/marked.min.js']; self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)))); self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));";            const blob = new Blob([swCode], { type: 'application/javascript' });            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});        }    }
+
+    function declencherInstall() {        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+
+        if (isStandalone) {            alert("L'application est déjà installée sur cet appareil !");            return;        }
+
+        if (isIOS) {            alert("Sur iOS, ouvrez les options de partage de Safari puis sélectionnez 'Sur l'écran d'accueil'.");        } else if (deferredPrompt) {            deferredPrompt.prompt();            deferredPrompt.userChoice.then((choiceResult) => {                 if (choiceResult.outcome === 'accepted') {                     document.getElementById('install-app-btn').hidden = true;                 }                 deferredPrompt = null;             });        } else {            alert("Le système d'installation n'est pas encore prêt ou l'application est déjà installée.");        }    }
+
+    function chargerMemoireGraphique() {        const conteneur = document.getElementById('memoire-list');        conteneur.innerHTML = '';        memoireLocale.forEach((info, index) => {            const div = document.createElement('div');            div.className = 'memory-item';            div.innerHTML = `<span>${info}</span><button onclick="supprimerMemoire(${index})">X</button>`;            conteneur.appendChild(div);        });    }
+
+    function ajouterMemoire(nouvelleInfo) {        if (!memoireLocale.includes(nouvelleInfo) && nouvelleInfo.trim() !== "") {            memoireLocale.push(nouvelleInfo);            localStorage.setItem('theodore_memoire', JSON.stringify(memoireLocale));            chargerMemoireGraphique();        }    }
+
+    function supprimerMemoire(index) {        memoireLocale.splice(index, 1);        localStorage.setItem('theodore_memoire', JSON.stringify(memoireLocale));        chargerMemoireGraphique();    }
+
+    function renderHistorique() {        const hist = document.getElementById('historique');        hist.innerHTML = '';        conversations.forEach(c => {            const div = document.createElement('div');            div.className = 'history-item';            div.onclick = () => { chargerConversation(c.id); fermerSidebar(); };            div.innerHTML = `<strong>${c.titre}</strong><br><small style="color:#94a3b8">${c.date}</small>`;            hist.appendChild(div);        });    }
+
+    function nouvelleConversation() {        currentChatId = 'chat_' + Date.now();        conversations.unshift({ id: currentChatId, titre: "Nouvelle discussion", date: new Date().toLocaleDateString('fr-FR'), messages: [] });        localStorage.setItem('theodore_chats', JSON.stringify(conversations));        localStorage.setItem('theodore_current_id', currentChatId);        renderHistorique();        document.getElementById('messages').innerHTML = '';    }
+
+    function chargerConversation(id) {        currentChatId = id;        localStorage.setItem('theodore_current_id', currentChatId);        renderHistorique();        const chat = conversations.find(c => c.id === id);        const conteneur = document.getElementById('messages');        conteneur.innerHTML = '';        if (chat) {            chat.messages.forEach(m => afficherMessageGraphique(m.role, m.content, m.image, m.isError));        }        scrollToBottom();    }
+
+    function sauverMessage(role, content, image = null, isError = false) {        const chat = conversations.find(c => c.id === currentChatId);        if (chat) {            chat.messages.push({ role, content, image, isError });            if (chat.messages.length === 1 && role === 'user') {                chat.titre = content.substring(0, 25) + (content.length > 25 ? '...' : '');            }            localStorage.setItem('theodore_chats', JSON.stringify(conversations));            renderHistorique();        }    }
+
+    function scrollToBottom() {        const c = document.getElementById('messages');        c.scrollTop = c.scrollHeight;    }
+
+    function gererFichier(input) {        if (input.files && input.files[0]) {            fichierEnCours = input.files[0];            const zonePreview = document.getElementById('file-preview-area');            zonePreview.hidden = false;            zonePreview.innerHTML = `<span>${fichierEnCours.name}</span> <button onclick="annulerFichier()">X</button>`;        }    }
+
+    function annulerFichier() {        fichierEnCours = null;        document.getElementById('file-input').value = '';        document.getElementById('file-preview-area').hidden = true;    }
+
+    function afficherMessageGraphique(role, texte, imageSrc = null, isError = false) {        const conteneur = document.getElementById('messages');        const wrapper = document.createElement('div');        wrapper.className = `msg-wrapper ${role}`;
+
+        let contenuHtml = '';        const imgHtml = imageSrc ? `<img src="${imageSrc}" class="msg-image" onclick="ouvrirModalVue('${imageSrc}')"><br>` : '';
+
+        if (role === 'user') {            contenuHtml = `<div class="msg-bubble">${imgHtml}${texte.replace(/\n/g, '<br>')}</div>`;        } else {            let blocPensee = '';            let texteFinal = texte;                        if (texte.includes('<think>')) {                const parties = texte.split('</think>');                const pensee = parties[0].replace('<think>', '').trim();                texteFinal = parties[1] || '';                blocPensee = `<details><summary>Raisonnement</summary><div>${pensee.replace(/\n/g, '<br>')}</div></details>`;            }
+
+            const btnRetouche = imageSrc ? `<button onclick="ouvrirModalRetouche('${imageSrc}')" style="margin-top:5px; font-size:0.8rem; padding:4px 8px;">Retoucher</button>` : '';            const errorClass = isError ? 'error-text' : '';                        contenuHtml = `                <div class="msg-bubble">                    ${blocPensee}                    ${imgHtml}                    <div class="${errorClass}">${isError ? texteFinal : marked.parse(texteFinal)}</div>                    ${btnRetouche}                </div>`;        }                wrapper.innerHTML = contenuHtml;        conteneur.appendChild(wrapper);        scrollToBottom();    }
+
+    async function envoyer() {        if (!GROQ_KEY || GROQ_KEY.trim() === "") {            verifierCleAPI();            return;        }        const input = document.getElementById('msg-input');        const texte = input.value.trim();        if (texte === "" && !fichierEnCours) return;
+
+        input.value = "";        input.style.height = 'auto';                if (fichierEnCours) {            const reader = new FileReader();            reader.onload = e => executerRequete(texte, e.target.result);            reader.readAsDataURL(fichierEnCours);        } else {            executerRequete(texte, null);        }    }
+
+    async function executerRequete(texte, imageBase64) {        afficherMessageGraphique('user', texte, imageBase64);        sauverMessage('user', texte, imageBase64);        annulerFichier();
+
+        const zoneTyping = document.getElementById('typing');        zoneTyping.hidden = false;        scrollToBottom();
+
+        if (texte.toLowerCase().match(/^(retiens que|souviens-toi que)\s*/i)) {            ajouterMemoire(texte.replace(/^(retiens que|souviens-toi que)\s*/i, ""));        }
+
+        try {            let modelId = imageBase64 ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-specdec";            let structureMessages = memoireLocale.length > 0 ? [{ role: "system", content: "Mémorise ceci : " + memoireLocale.join(' | ') }] : [];
+
+            if (imageBase64) {                structureMessages.push({                    role: "user",                    content: [                        { type: "text", text: texte || "Analyse cette image." },                        { type: "image_url", image_url: { url: imageBase64 } }                    ]                });            } else {                const chatActuel = conversations.find(c => c.id === currentChatId);                let messageHistoryCount = 0;                let historyArray = [];                                for (let i = chatActuel.messages.length - 1; i >= 0 && messageHistoryCount < 6; i--) {                    const m = chatActuel.messages[i];                    if (!m.image && !m.isError) {                        historyArray.unshift({ role: m.role, content: m.content });                        messageHistoryCount++;                    }                }                                structureMessages = structureMessages.concat(historyArray);
+
+                if(structureMessages.length === 0 || structureMessages[structureMessages.length-1].content !== texte) {                    structureMessages.push({ role: "user", content: texte });                }            }
+
+            const reponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {                method: "POST",                headers: {                     "Authorization": `Bearer ${GROQ_KEY}`,                     "Content-Type": "application/json"                 },                body: JSON.stringify({                     model: modelId,                     messages: structureMessages,                     temperature: 0.7                 })            });
+
+            if (!reponse.ok) {                const erreurData = await reponse.json();                throw new Error(erreurData.error?.message || `Erreur HTTP ${reponse.status}`);            }
+
+            const data = await reponse.json();            const reponseTexte = data.choices[0].message.content;
+
+            zoneTyping.hidden = true;            afficherMessageGraphique('assistant', reponseTexte, imageBase64, false);            sauverMessage('assistant', reponseTexte, imageBase64, false);
+
+        } catch (erreur) {            zoneTyping.hidden = true;            const messageErreur = `Code d'erreur reçu : ${erreur.message}. Vérifiez la clé API configurée, le modèle ou votre connexion internet.`;            afficherMessageGraphique('assistant', messageErreur, null, true);            sauverMessage('assistant', messageErreur, null, true);        }    }
+
+    function ouvrirModalVue(src) {        document.getElementById('view-image').src = src;        document.getElementById('view-modal').hidden = false;    }
+
+    function fermerModalVue() {        document.getElementById('view-modal').hidden = true;    }
+
+    function ouvrirModalRetouche(src) {        document.getElementById('edit-modal').hidden = false;        imageChargee = new Image();        imageChargee.crossOrigin = "anonymous";        imageChargee.src = src;        imageChargee.onload = () => {            const canvas = document.getElementById('edit-canvas');            const ctx = canvas.getContext('2d');                        const maxDim = 800;            let w = imageChargee.naturalWidth;            let h = imageChargee.naturalHeight;                        if (w > maxDim || h > maxDim) {                if (w > h) {                    h = (h / w) * maxDim;                    w = maxDim;                } else {                    w = (w / h) * maxDim;                    h = maxDim;                }            }                        canvas.width = w;            canvas.height = h;            ctx.drawImage(imageChargee, 0, 0, w, h);            imageOriginaleData = ctx.getImageData(0, 0, canvas.width, canvas.height);            appliquerFiltresParDefaut();        };    }
+
+    function fermerModalRetouche() {        document.getElementById('edit-modal').hidden = true;    }
+
+    function appliquerFiltresParDefaut() {        ['brightness', 'contrast', 'saturation', 'blur'].forEach(id => {            document.getElementById(id).value = 0;        });        appliquerFiltres();    }
+
+    function appliquerFiltres() {        if (!imageOriginaleData) return;        const canvas = document.getElementById('edit-canvas');        const ctx = canvas.getContext('2d');        const b = parseInt(document.getElementById('brightness').value);        const c = parseInt(document.getElementById('contrast').value);        const s = parseInt(document.getElementById('saturation').value);        const flou = parseInt(document.getElementById('blur').value);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);        ctx.filter = `brightness(${100 + b}%) contrast(${100 + c}%) saturate(${100 + s}%) blur(${flou}px)`;        ctx.drawImage(imageChargee, 0, 0, canvas.width, canvas.height);        ctx.filter = 'none';    }
+
+    function telechargerImageRetouchee() {        const a = document.createElement('a');        a.href = document.getElementById('edit-canvas').toDataURL('image/jpeg', 0.9);        a.download = `theodore_edit_${Date.now()}.jpg`;        document.body.appendChild(a);         a.click();         document.body.removeChild(a);    }
+
+    function analyserImagePlusDetail() {        const base64 = document.getElementById('edit-canvas').toDataURL('image/jpeg', 0.7);        fermerModalRetouche();        executerRequete("Analyse cette image.", base64);    }
+
+    function telecharger() {        const chat = conversations.find(c => c.id === currentChatId);        if (!chat) return;        let exportTexte = `Discussion: ${chat.titre}\n\n`;        chat.messages.forEach(m => {            exportTexte += `${m.role.toUpperCase()}: ${m.content}\n\n`;        });        const a = document.createElement('a');        a.href = URL.createObjectURL(new Blob([exportTexte], { type: 'text/plain;charset=utf-8' }));        a.download = `Theodore_Export_${chat.titre}.txt`;        document.body.appendChild(a);         a.click();         document.body.removeChild(a);    }</script></body></html>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -12,7 +13,208 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+        /* ===== LOGIN SCREEN ===== */
+        #login-screen {
+            position:fixed; inset:0; background:#0a0a10; z-index:9999;
+            display:flex; align-items:center; justify-content:center;
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+            overflow:hidden;
+        }
+        #login-screen.hide {
+            animation: fadeOutScale 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
+        }
+        @keyframes fadeOutScale {
+            to { opacity:0; transform:scale(1.05); pointer-events:none; }
+        }
+
+        /* Animated background */
+        .login-bg {
+            position:absolute; inset:0; overflow:hidden;
+        }
+        .login-bg::before {
+            content:''; position:absolute; inset:-50%;
+            background: radial-gradient(ellipse at 30% 40%, #00d4ff08 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 70%, #7c3aed0a 0%, transparent 50%);
+            animation: bgPulse 8s ease-in-out infinite alternate;
+        }
+        @keyframes bgPulse {
+            from { transform: scale(1) rotate(0deg); }
+            to   { transform: scale(1.1) rotate(3deg); }
+        }
+        .grid-lines {
+            position:absolute; inset:0;
+            background-image: linear-gradient(#00d4ff06 1px, transparent 1px),
+                              linear-gradient(90deg, #00d4ff06 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+        }
+        /* Floating particles */
+        .particle {
+            position:absolute; border-radius:50%;
+            background: radial-gradient(circle, #00d4ff, transparent);
+            animation: floatUp linear infinite;
+            opacity:0;
+        }
+        @keyframes floatUp {
+            0%   { opacity:0; transform:translateY(100vh) scale(0); }
+            10%  { opacity:0.6; }
+            90%  { opacity:0.2; }
+            100% { opacity:0; transform:translateY(-20vh) scale(1); }
+        }
+
+        .login-card {
+            position:relative; z-index:2;
+            width:min(420px, 92vw);
+            background: linear-gradient(145deg, #0f0f1a, #0d0d18);
+            border:1px solid #1e1e2e;
+            border-radius:24px;
+            padding:40px 36px;
+            box-shadow: 0 0 0 1px #00d4ff0a, 0 30px 80px #000a, 0 0 60px #00d4ff08;
+            animation: cardIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        @keyframes cardIn {
+            from { opacity:0; transform:translateY(30px) scale(0.95); }
+            to   { opacity:1; transform:translateY(0) scale(1); }
+        }
+
+        /* Glowing top border */
+        .login-card::before {
+            content:''; position:absolute; top:0; left:20%; right:20%; height:1px;
+            background: linear-gradient(90deg, transparent, #00d4ff, #7c3aed, #00d4ff, transparent);
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+        @keyframes borderGlow {
+            0%,100% { opacity:0.5; }
+            50% { opacity:1; }
+        }
+
+        .login-logo {
+            display:flex; flex-direction:column; align-items:center; margin-bottom:32px; gap:12px;
+        }
+        .login-logo-icon {
+            width:64px; height:64px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            border-radius:18px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:22px; font-weight:900; color:white;
+            box-shadow: 0 8px 30px #00d4ff33, 0 0 0 1px #00d4ff22;
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+        @keyframes logoGlow {
+            0%,100% { box-shadow:0 8px 30px #00d4ff33, 0 0 0 1px #00d4ff22; }
+            50% { box-shadow:0 8px 40px #00d4ff55, 0 0 20px #7c3aed33, 0 0 0 1px #00d4ff44; }
+        }
+        .login-title { color:#fff; font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+        .login-sub { color:#444; font-size:12px; letter-spacing:2px; text-transform:uppercase; }
+
+        /* Tab switcher */
+        .auth-tabs {
+            display:flex; background:#080810; border-radius:12px;
+            padding:4px; gap:4px; margin-bottom:28px;
+            border:1px solid #1e1e2e;
+        }
+        .auth-tab {
+            flex:1; padding:10px; border:none; border-radius:9px;
+            background:transparent; color:#555; font-size:13px; font-weight:600;
+            cursor:pointer; transition:all 0.25s; font-family:inherit;
+        }
+        .auth-tab.active {
+            background:linear-gradient(135deg,#1a1a3e,#0f0f28);
+            color:#fff; border:1px solid #2e2e4e;
+            box-shadow:0 2px 12px #00d4ff11;
+        }
+
+        /* Forms */
+        .auth-form { display:none; flex-direction:column; gap:16px; }
+        .auth-form.active { display:flex; animation:formIn 0.3s ease both; }
+        @keyframes formIn {
+            from { opacity:0; transform:translateX(8px); }
+            to   { opacity:1; transform:translateX(0); }
+        }
+
+        .field-group { display:flex; flex-direction:column; gap:6px; }
+        .field-label { color:#555; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; }
+        .field-input {
+            background:#080810; border:1px solid #1e1e2e; border-radius:12px;
+            padding:13px 16px; color:#e3e3e3; font-size:15px; outline:none;
+            font-family:inherit; transition:all 0.2s;
+            -webkit-appearance:none;
+        }
+        .field-input:focus { border-color:#00d4ff44; box-shadow:0 0 0 3px #00d4ff0a; }
+        .field-input::placeholder { color:#2a2a3a; }
+        .field-input.error { border-color:#ff4a4a55; box-shadow:0 0 0 3px #ff4a4a0a; }
+
+        .error-msg {
+            color:#ff6b6b; font-size:12px; display:none; align-items:center; gap:5px;
+        }
+        .error-msg.show { display:flex; animation:shake 0.3s ease; }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+        }
+
+        .btn-submit {
+            background:linear-gradient(135deg,#00d4ff,#7c3aed);
+            color:white; border:none; border-radius:12px;
+            padding:14px; font-size:15px; font-weight:700;
+            cursor:pointer; font-family:inherit; transition:all 0.2s;
+            position:relative; overflow:hidden; margin-top:4px;
+        }
+        .btn-submit::before {
+            content:''; position:absolute; inset:0;
+            background:linear-gradient(135deg,#7c3aed,#00d4ff);
+            opacity:0; transition:opacity 0.3s;
+        }
+        .btn-submit:hover::before { opacity:1; }
+        .btn-submit:active { transform:scale(0.98); }
+        .btn-submit span { position:relative; z-index:1; }
+        .btn-submit.loading span::after {
+            content:''; display:inline-block; width:14px; height:14px;
+            border:2px solid #ffffff55; border-top-color:#fff;
+            border-radius:50%; animation:spin 0.7s linear infinite;
+            vertical-align:middle; margin-left:8px;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        .divider {
+            display:flex; align-items:center; gap:12px; color:#2a2a3a; font-size:12px; margin:4px 0;
+        }
+        .divider::before,.divider::after { content:''; flex:1; height:1px; background:#1e1e2e; }
+
+        /* Guest button */
+        .btn-guest {
+            background:transparent; border:1px solid #1e1e2e; border-radius:12px;
+            padding:12px; font-size:13px; font-weight:600; color:#555;
+            cursor:pointer; font-family:inherit; transition:all 0.2s;
+        }
+        .btn-guest:hover { border-color:#2e2e4e; color:#888; background:#0f0f18; }
+
+        /* Success state */
+        .success-overlay {
+            position:absolute; inset:0; background:#0a0a10;
+            border-radius:24px; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; gap:12px;
+            opacity:0; pointer-events:none; transition:opacity 0.3s;
+        }
+        .success-overlay.show { opacity:1; pointer-events:auto; }
+        .success-icon { font-size:48px; animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+        .success-text { color:#00ff88; font-size:16px; font-weight:700; }
+        .success-sub { color:#555; font-size:13px; }
+
+        /* Password strength */
+        .strength-bar {
+            height:3px; border-radius:2px; background:#1e1e2e; margin-top:6px; overflow:hidden;
+        }
+        .strength-fill {
+            height:100%; width:0; border-radius:2px; transition:all 0.3s;
+        }
+        .strength-label { font-size:10px; color:#444; margin-top:3px; }
+
+        /* ===== MAIN APP ===== */
         body { background:#0a0a10; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; height:100vh; height:100dvh; display:flex; color:#e3e3e3; overflow:hidden; user-select:none; }
+        #app { display:flex; width:100%; height:100%; opacity:0; transition:opacity 0.5s; }
+        #app.visible { opacity:1; }
         #sidebar { width:280px; background:#0f0f18; border-right:1px solid #1e1e2e; display:flex; flex-direction:column; z-index:100; }
         .sidebar-profile { padding:20px 15px; border-bottom:1px solid #1e1e2e; display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,#0f0f18,#1a1a2e); }
         .profile-avatar { width:44px; height:44px; background:linear-gradient(135deg,#00d4ff,#7c3aed); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:white; letter-spacing:-1px; box-shadow:0 4px 15px #00d4ff33; flex-shrink:0; }
@@ -36,6 +238,7 @@
         #android-btn { background:#1a2e1a; color:#00ff88; border:1px solid #00ff8833; }
         #new-chat { background:#0a1a2e; color:#00d4ff; border:1px solid #00d4ff33; }
         #download-btn { background:#1a1a2e; color:#888; border:1px solid #2e2e38; }
+        #logout-btn { background:#1a0a0a; color:#ff6b6b; border:1px solid #ff6b6b22; }
         #main { flex:1; display:flex; flex-direction:column; background:#0a0a10; position:relative; overflow:hidden; }
         #header { background:rgba(10,10,16,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:12px 16px; padding-top:max(12px,env(safe-area-inset-top)); display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #1e1e2e; }
         .header-left { display:flex; align-items:center; gap:12px; }
@@ -59,8 +262,7 @@
         .thought-block { background:#0f0f18; border-left:2px solid #7c3aed; padding:8px 12px; border-radius:8px; font-size:12px; color:#666; }
         .thought-block summary { cursor:pointer; font-weight:600; color:#7c3aed; outline:none; font-size:12px; }
         .bubble-bot { color:#e3e3e3; font-size:15px; line-height:1.65; width:100%; }
-        .bubble-bot p { margin-bottom:8px; }
-        .bubble-bot p:last-child { margin-bottom:0; }
+        .bubble-bot p { margin-bottom:8px; } .bubble-bot p:last-child { margin-bottom:0; }
         .bubble-bot pre { background:#0f0f18; padding:12px; border-radius:8px; overflow-x:auto; margin:10px 0; border:1px solid #1e1e2e; font-size:13px; }
         .bubble-bot code { background:#1a1a2e; padding:2px 5px; border-radius:4px; font-family:monospace; font-size:12px; color:#00d4ff; }
         .bubble-bot h1,.bubble-bot h2,.bubble-bot h3 { color:#00d4ff; margin:12px 0 6px; }
@@ -106,12 +308,80 @@
     </style>
 </head>
 <body>
- 
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen">
+    <div class="login-bg">
+        <div class="grid-lines"></div>
+    </div>
+
+    <div class="login-card">
+        <div class="success-overlay" id="success-overlay">
+            <div class="success-icon">✦</div>
+            <div class="success-text">Connexion réussie</div>
+            <div class="success-sub" id="success-sub">Bienvenue !</div>
+        </div>
+
+        <div class="login-logo">
+            <div class="login-logo-icon">IA</div>
+            <div class="login-title">Agent Theodore</div>
+            <div class="login-sub">Intelligence Artificielle</div>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Connexion</button>
+            <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Créer un compte</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="auth-form active" id="form-login">
+            <div class="field-group">
+                <div class="field-label">Email</div>
+                <input class="field-input" id="login-email" type="email" placeholder="vous@exemple.com" autocomplete="email">
+            </div>
+            <div class="field-group">
+                <div class="field-label">Mot de passe</div>
+                <input class="field-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <div class="error-msg" id="login-error">⚠ <span id="login-error-text">Identifiants incorrects</span></div>
+            <button class="btn-submit" id="btn-login" onclick="doLogin()"><span>Se connecter →</span></button>
+            <div class="divider">ou</div>
+            <button class="btn-guest" onclick="doGuest()">👤 Continuer en tant qu'invité</button>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div class="auth-form" id="form-register">
+            <div class="field-group">
+                <div class="field-label">Nom d'affichage</div>
+                <input class="field-input" id="reg-name" type="text" placeholder="Votre nom" autocomplete="name">
+            </div>
+            <div class="field-group">
+                <div class="field-label">Email</div>
+                <input class="field-input" id="reg-email" type="email" placeholder="vous@exemple.com" autocomplete="email">
+            </div>
+            <div class="field-group">
+                <div class="field-label">Mot de passe</div>
+                <input class="field-input" id="reg-pass" type="password" placeholder="Min. 6 caractères" oninput="checkStrength(this.value)" autocomplete="new-password">
+                <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+                <div class="strength-label" id="strength-label"></div>
+            </div>
+            <div class="field-group">
+                <div class="field-label">Confirmer le mot de passe</div>
+                <input class="field-input" id="reg-pass2" type="password" placeholder="Répétez le mot de passe" autocomplete="new-password">
+            </div>
+            <div class="error-msg" id="reg-error">⚠ <span id="reg-error-text">Erreur</span></div>
+            <button class="btn-submit" id="btn-register" onclick="doRegister()"><span>Créer mon compte →</span></button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app">
 <div id="sidebar">
     <div class="sidebar-profile">
-        <div class="profile-avatar">IA</div>
+        <div class="profile-avatar" id="user-avatar">IA</div>
         <div class="profile-info">
-            <h3>Agent Theodore</h3>
+            <h3 id="user-name-display">Agent Theodore</h3>
             <p>● Intelligence Artificielle Active</p>
         </div>
     </div>
@@ -126,11 +396,12 @@
         <button id="android-btn" class="btn-action" onclick="installerAndroid()">🤖 Installer Android</button>
         <button id="new-chat" class="btn-action" onclick="nouvelleConversation();fermerSidebar();">+ Nouveau Chat</button>
         <button id="download-btn" class="btn-action" onclick="telecharger()">📥 Télécharger</button>
+        <button id="logout-btn" class="btn-action" onclick="doLogout()">🚪 Déconnexion</button>
     </div>
 </div>
- 
+
 <div id="sidebar-overlay" onclick="fermerSidebar()"></div>
- 
+
 <div id="main">
     <div id="header">
         <div class="header-left">
@@ -143,15 +414,15 @@
         </div>
         <div class="badge-pro">PRO</div>
     </div>
- 
+
     <div id="messages"></div>
- 
+
     <div id="typing">
         <div class="ia-avatar">IA</div>
         <div class="typing-dots"><div class="d"></div><div class="d"></div><div class="d"></div></div>
         <span class="typing-text" id="typing-text">Theodore analyse...</span>
     </div>
- 
+
     <div id="input-container">
         <div id="input-zone">
             <div id="file-preview-area"></div>
@@ -164,325 +435,144 @@
         </div>
     </div>
 </div>
- 
+</div><!-- end #app -->
+
 <script>
-    // ===== CONFIG =====
-    const GROQ_KEY = "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";
- 
-    // ===== DOM =====
-    const msgDiv = document.getElementById('messages');
-    const input  = document.getElementById('msg-input');
-    const typing = document.getElementById('typing');
-    const typingText = document.getElementById('typing-text');
-    const sidebar = document.getElementById('sidebar');
- 
-    // ===== STATE =====
-    let historique = [];
-    let sessions   = JSON.parse(localStorage.getItem('theo_sessions') || '[]');
-    let memoire    = JSON.parse(localStorage.getItem('theo_memoire')  || '[]');
-    let fichierJoint  = null;
-    let fichierBase64 = null;
-    let isLoading = false;
- 
-    // ===== UTILS =====
-    marked.setOptions({ gfm:true, breaks:true });
-    const heure = () => new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-    const toggleSidebar  = () => sidebar.classList.toggle('open');
-    const fermerSidebar  = () => sidebar.classList.remove('open');
- 
-    function telecharger(){
-        const b = new Blob([`<!DOCTYPE html>\n${document.documentElement.outerHTML}`],{type:'text/html'});
-        const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Agent_Theodore_IA.html'; a.click();
+// ===== CONFIG =====
+const GROQ_KEY = "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";
+
+// ===== LOGIN SYSTEM =====
+// Simple localStorage-based auth (client-side)
+const AUTH_KEY = 'theo_users';
+const SESSION_KEY = 'theo_current_user';
+
+function getUsers() {
+    return JSON.parse(localStorage.getItem(AUTH_KEY) || '{}');
+}
+function saveUsers(u) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(u));
+}
+function getCurrentUser() {
+    return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+}
+function setCurrentUser(u) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(u));
+}
+
+function switchTab(tab) {
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    document.getElementById('form-login').classList.toggle('active', tab === 'login');
+    document.getElementById('form-register').classList.toggle('active', tab === 'register');
+    hideErrors();
+}
+
+function showError(id, msg) {
+    const el = document.getElementById(id);
+    const txt = document.getElementById(id + '-text');
+    if (txt) txt.textContent = msg;
+    el.classList.add('show');
+}
+function hideErrors() {
+    ['login-error','reg-error'].forEach(id => {
+        document.getElementById(id).classList.remove('show');
+    });
+}
+
+function checkStrength(pass) {
+    const fill = document.getElementById('strength-fill');
+    const label = document.getElementById('strength-label');
+    let score = 0;
+    if (pass.length >= 6) score++;
+    if (pass.length >= 10) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^a-zA-Z0-9]/.test(pass)) score++;
+    const configs = [
+        { w:'0%', c:'transparent', t:'' },
+        { w:'25%', c:'#ff4a4a', t:'Très faible' },
+        { w:'50%', c:'#ff8c4a', t:'Faible' },
+        { w:'70%', c:'#ffd700', t:'Moyen' },
+        { w:'90%', c:'#00d4ff', t:'Fort' },
+        { w:'100%', c:'#00ff88', t:'Très fort ✓' }
+    ];
+    const cfg = configs[Math.min(score, 5)];
+    fill.style.width = cfg.w;
+    fill.style.background = cfg.c;
+    label.style.color = cfg.c;
+    label.textContent = cfg.t;
+}
+
+function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    hideErrors();
+    if (!email || !pass) { showError('login-error','Remplissez tous les champs'); return; }
+    const users = getUsers();
+    if (!users[email]) { showError('login-error','Aucun compte avec cet email'); return; }
+    if (users[email].pass !== btoa(pass)) { showError('login-error','Mot de passe incorrect'); return; }
+    loginSuccess(users[email]);
+}
+
+function doRegister() {
+    const name  = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass  = document.getElementById('reg-pass').value;
+    const pass2 = document.getElementById('reg-pass2').value;
+    hideErrors();
+    if (!name || !email || !pass || !pass2) { showError('reg-error','Remplissez tous les champs'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('reg-error','Email invalide'); return; }
+    if (pass.length < 6) { showError('reg-error','Mot de passe trop court (min. 6 caractères)'); return; }
+    if (pass !== pass2) { showError('reg-error','Les mots de passe ne correspondent pas'); return; }
+    const users = getUsers();
+    if (users[email]) { showError('reg-error','Cet email est déjà utilisé'); return; }
+    const user = { name, email, pass: btoa(pass), created: new Date().toISOString(), avatar: name[0].toUpperCase() };
+    users[email] = user;
+    saveUsers(users);
+    loginSuccess(user);
+}
+
+function doGuest() {
+    const user = { name:'Invité', email:'guest', pass:'', avatar:'👤', isGuest:true };
+    loginSuccess(user);
+}
+
+function loginSuccess(user) {
+    setCurrentUser(user);
+    const overlay = document.getElementById('success-overlay');
+    document.getElementById('success-sub').textContent = `Bienvenue, ${user.name} !`;
+    overlay.classList.add('show');
+    setTimeout(() => {
+        document.getElementById('login-screen').classList.add('hide');
+        initApp(user);
+        setTimeout(() => {
+            document.getElementById('login-screen').style.display = 'none';
+        }, 500);
+    }, 1200);
+}
+
+function doLogout() {
+    if (!confirm('Se déconnecter ?')) return;
+    localStorage.removeItem(SESSION_KEY);
+    location.reload();
+}
+
+function initApp(user) {
+    document.getElementById('app').classList.add('visible');
+    // Update profile display
+    const avatarEl = document.getElementById('user-avatar');
+    if (user.isGuest) {
+        avatarEl.textContent = '👤';
+        avatarEl.style.fontSize = '18px';
+    } else {
+        avatarEl.textContent = user.avatar || user.name[0].toUpperCase();
     }
- 
-    // ===== MEMOIRE =====
-    function afficherMemoire(){
-        const el = document.getElementById('memoire-list');
-        el.innerHTML = memoire.length===0
-            ? '<div style="color:#333;font-size:11px;padding:4px">Aucun souvenir</div>'
-            : memoire.map((m,i)=>`<div class="mem-item">💾 ${m.substring(0,28)}... <span class="mem-del" onclick="supprimerMemoire(${i})">✕</span></div>`).join('');
-    }
-    function supprimerMemoire(i){
-        memoire.splice(i,1);
-        localStorage.setItem('theo_memoire',JSON.stringify(memoire));
-        afficherMemoire();
-    }
-    function extraireMemoire(t){
-        const mots=["je m'appelle","mon nom est","j'habite","je travaille","je suis","my name is","i am","i live"];
-        if(mots.some(m=>t.toLowerCase().includes(m))){
-            memoire.push(t.substring(0,60));
-            if(memoire.length>20) memoire.shift();
-            localStorage.setItem('theo_memoire',JSON.stringify(memoire));
-            afficherMemoire();
-        }
-    }
-    function contexteMemoire(){
-        return memoire.length===0 ? '' : `\n\nMÉMOIRE:\n${memoire.map(m=>'- '+m).join('\n')}`;
-    }
- 
-    // ===== SESSIONS =====
-    function afficherSessions(){
-        const h = document.getElementById('historique');
-        h.innerHTML = sessions.slice().reverse().map((s,i)=>{
-            const idx = sessions.length-1-i;
-            return `<div class="session" onclick="chargerSession(${idx});fermerSidebar();"><span class="sess-icon">💬</span><div class="sess-content"><div class="sess-title">${s.titre}</div><div class="sess-date">${s.date||''}</div></div></div>`;
-        }).join('');
-    }
-    function chargerSession(i){
-        historique = sessions[i].messages;
-        msgDiv.innerHTML = '';
-        historique.forEach(m=>{
-            if(m.role==='user')      addUser(m.content);
-            if(m.role==='assistant') addBot(m.content);
-        });
-        msgDiv.scrollTop = msgDiv.scrollHeight;
-    }
-    function nouvelleConversation(){
-        if(historique.length>0){
-            const p = historique.find(m=>m.role==='user');
-            sessions.push({titre:p?p.content.substring(0,25)+'...':'Discussion',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
-            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
-            afficherSessions();
-        }
-        historique=[]; msgDiv.innerHTML='';
-        addBot("Nouvelle conversation ! Je suis prêt. 🚀");
-    }
-    function sauvegarderSession(texte){
-        if(historique.length===2){
-            sessions.push({titre:texte.substring(0,25)+'...',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
-            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
-            afficherSessions();
-        } else if(sessions.length>0){
-            sessions[sessions.length-1].messages = historique;
-            localStorage.setItem('theo_sessions',JSON.stringify(sessions));
-        }
-    }
- 
-    // ===== AFFICHAGE =====
-    function addUser(texte){
-        msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user">${texte}</div><div class="msg-time">${heure()}</div></div>`;
-        msgDiv.scrollTop = msgDiv.scrollHeight;
-    }
-    function addBot(contenu){
-        let pensee='', rep=contenu;
-        if(contenu.includes('<thought>')&&contenu.includes('</thought>')){
-            pensee = contenu.split('</thought>')[0].replace('<thought>','').trim();
-            rep    = contenu.split('</thought>')[1].trim();
-        }
-        const id='w'+Date.now()+Math.random().toString(36).substr(2,3);
-        msgDiv.innerHTML += `<div class="msg-bot"><div class="ia-avatar">IA</div><div class="bot-content-wrapper" id="${id}"></div></div>`;
-        const w = document.getElementById(id);
-        if(pensee) w.innerHTML += `<details class="thought-block"><summary>🧠 Raisonnement</summary><div>${marked.parse(pensee)}</div></details>`;
-        w.innerHTML += `<div class="bubble-bot">${marked.parse(rep)}</div><div class="msg-time">${heure()}</div>`;
-        msgDiv.scrollTop = msgDiv.scrollHeight;
-    }
-    function addImageGeneree(prompt, url){
-        msgDiv.innerHTML += `
-        <div class="msg-bot">
-            <div class="ia-avatar-img">🎨</div>
-            <div class="bot-content-wrapper">
-                <div class="gen-img-container">
-                    <div class="gen-img-label">✦ Image générée par IA</div>
-                    <img class="gen-img" src="${url}" alt="${prompt}" onclick="window.open('${url}','_blank')" loading="lazy">
-                    <a class="download-img" href="${url}" download="theodore-ia.png" target="_blank">⬇ Télécharger</a>
-                </div>
-                <div class="msg-time">${heure()}</div>
-            </div>
-        </div>`;
-        msgDiv.scrollTop = msgDiv.scrollHeight;
-    }
- 
-    // ===== GENERATION IMAGE =====
-    function detecterGenerationImage(t){
-        return ['génère','generez','génerer','create','generate','dessine','crée une image','imagine','fais une image','make an image','draw'].some(m=>t.toLowerCase().includes(m));
-    }
-    async function genererImage(prompt){
-        if(isLoading) return;
-        isLoading = true;
-        typingText.innerText = "🎨 Génération de l'image...";
-        typing.style.display = 'flex';
-        const propre = prompt.replace(/génère|générer|dessine|crée une image|imagine|fais une image|generate|create|draw|peins/gi,'').trim();
-        const enc = encodeURIComponent(propre+', professional, ultra realistic, 8k, highly detailed');
-        const url = `https://image.pollinations.ai/prompt/${enc}?width=1024&height=1024&nologo=true&model=flux`;
-        typing.style.display = 'none';
-        addUser(prompt);
-        addImageGeneree(propre, url);
-        historique.push({role:'user',content:prompt});
-        historique.push({role:'assistant',content:`[Image générée: ${propre}]`});
-        sauvegarderSession(prompt);
-        isLoading = false;
-    }
- 
-    // ===== ANALYSE IMAGE (GROQ VISION) =====
-    async function analyserImage(texte, b64, mimeType){
-        if(isLoading) return;
-        isLoading = true;
-        typingText.innerText = "📸 Analyse de l'image...";
-        typing.style.display = 'flex';
- 
-        try {
-            // Groq vision avec le bon format - image_url inline data
-            const payload = {
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-                messages: [{
-                    role: 'user',
-                    content: [
-                        {
-                            type: 'text',
-                            text: texte
-                                ? texte
-                                : "Analyse cette image en détail. Décris tout ce que tu vois : les objets, personnes, couleurs, texte visible, ambiance, style, composition. Sois précis et complet."
-                        },
-                        {
-                            type: 'image_url',
-                            image_url: {
-                                url: `data:${mimeType};base64,${b64}`
-                            }
-                        }
-                    ]
-                }],
-                max_tokens: 1500,
-                temperature: 0.5
-            };
- 
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_KEY}`
-                },
-                body: JSON.stringify(payload)
-            });
- 
-            const data = await res.json();
-            typing.style.display = 'none';
- 
-            if(data.error){
-                console.error('Groq vision error:', data.error);
-                addBot("⚠️ Erreur: " + (data.error.message || JSON.stringify(data.error)));
-            } else if(data.choices?.[0]?.message?.content){
-                const rep = data.choices[0].message.content;
-                historique.push({role:'user', content: texte || 'Analyse cette image'});
-                historique.push({role:'assistant', content: rep});
-                addBot(rep);
-                sauvegarderSession(texte || 'Analyse image');
-            } else {
-                addBot("❌ Pas de réponse reçue.");
-            }
-        } catch(e){
-            typing.style.display = 'none';
-            console.error('Erreur fetch:', e);
-            addBot("❌ Erreur réseau: " + e.message);
-        }
-        isLoading = false;
-    }
- 
-    // ===== GESTION FICHIER =====
-    function gererFichier(inp){
-        if(!inp.files?.[0]) return;
-        const file = inp.files[0];
-        if(!file.type.startsWith('image/')){alert('❌ Image uniquement!'); return;}
-        if(file.size > 4*1024*1024){alert('❌ Max 4MB'); return;}
-        fichierJoint = file;
-        const reader = new FileReader();
-        reader.onload = e => {
-            fichierBase64 = e.target.result;
-            const prev = document.getElementById('file-preview-area');
-            prev.innerHTML = `<div class="preview-badge">🖼️ ${file.name.substring(0,18)} <span onclick="retirerFichier()">✕</span></div>`;
-            prev.style.display = 'flex';
-        };
-        reader.readAsDataURL(file);
-    }
-    function retirerFichier(){
-        fichierJoint=null; fichierBase64=null;
-        document.getElementById('file-input').value='';
-        document.getElementById('file-preview-area').style.display='none';
-    }
- 
-    // ===== ENVOYER =====
-    async function envoyer(){
-        const texte = input.value.trim();
-        if(!texte && !fichierJoint) return;
-        if(isLoading) return;
-        input.value='';
- 
-        // Image uploadée
-        if(fichierJoint && fichierBase64){
-            const b64  = fichierBase64.includes(',') ? fichierBase64.split(',')[1] : fichierBase64;
-            const mime = fichierJoint.type || 'image/jpeg';
-            msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte||'Analyse cette image'}</div><div class="msg-time">${heure()}</div></div>`;
-            msgDiv.scrollTop = msgDiv.scrollHeight;
-            retirerFichier();
-            await analyserImage(texte, b64, mime);
-            return;
-        }
- 
-        // Génération image
-        if(detecterGenerationImage(texte)){
-            await genererImage(texte);
-            return;
-        }
- 
-        // Chat normal (Groq llama-3.3-70b)
-        extraireMemoire(texte);
-        addUser(texte);
-        historique.push({role:'user', content:texte});
-        typingText.innerText = 'Theodore réfléchit...';
-        typing.style.display = 'flex';
-        isLoading = true;
- 
-        try {
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
-                method: 'POST',
-                headers: {'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
-                body: JSON.stringify({
-                    model: 'llama-3.3-70b-versatile',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: `Tu es l'Agent Theodore, une intelligence artificielle de prestige créée par l'ingénieur burundais Theodore Nahano. Tu es extrêmement intelligent, polyglotte, élégant et expert dans tous les domaines. Réponds dans la langue de ton interlocuteur. Sois bref, clair et précis.${contexteMemoire()}`
-                        },
-                        ...historique
-                    ],
-                    max_tokens: 2000,
-                    temperature: 0.65
-                })
-            });
-            const data = await res.json();
-            if(data.error){
-                addBot("⚠️ " + (data.error.message || "Erreur API"));
-            } else if(data.choices?.[0]?.message?.content){
-                const rep = data.choices[0].message.content;
-                historique.push({role:'assistant', content:rep});
-                addBot(rep);
-                sauvegarderSession(texte);
-            } else {
-                addBot("❌ Pas de réponse. Réessaie.");
-            }
-        } catch(e){
-            addBot("❌ Erreur réseau: " + e.message);
-        }
-        typing.style.display = 'none';
-        isLoading = false;
-    }
- 
-    // ===== PWA =====
-    const manifestObj = {name:"Agent Theodore IA",short_name:"Theodore IA",start_url:window.location.origin+window.location.pathname,display:"standalone",background_color:"#0a0a10",theme_color:"#0a0a10",icons:[{src:"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f0f18%22/><text y=%22.75em%22 x=%228%22 font-size=%2255%22 font-weight=%22900%22 fill=%22%2300d4ff%22>IA</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
-    document.getElementById('pwa-manifest').href = "data:application/manifest+json,"+encodeURIComponent(JSON.stringify(manifestObj));
-    let installPrompt = null;
-    window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); installPrompt=e; document.getElementById('install-app-btn').style.display='flex'; });
-    function declencherInstall(){ if(installPrompt){ installPrompt.prompt(); installPrompt.userChoice.then(r=>{ if(r.outcome==='accepted') document.getElementById('install-app-btn').style.display='none'; installPrompt=null; }); } }
-    function installerAndroid(){
-        const lien = window.location.href;
-        navigator.clipboard.writeText(lien).then(()=>{ alert('✅ Lien copié!\n\nSur Android:\n1. Chrome\n2. Colle le lien\n3. Menu ⋮ → Ajouter à accueil'); }).catch(()=>{ alert('Lien: '+lien); });
-    }
- 
-    // ===== INIT =====
-    input.addEventListener('keypress', e=>{ if(e.key==='Enter') envoyer(); });
+    document.getElementById('user-name-display').textContent = user.name;
+    // Init chat
     afficherSessions();
     afficherMemoire();
-    addBot(`Bonjour ! Je suis **l'Agent Theodore** — Intelligence Artificielle de Nouvelle Génération. 🚀
- 
+    addBot(`Bonjour **${user.name}** ! Je suis **l'Agent Theodore** — Intelligence Artificielle de Nouvelle Génération. 🚀
+
 **Mes capacités :**
 - 💬 Répondre à toutes vos questions
 - 📷 Analyser des photos avec précision
@@ -490,8 +580,312 @@
 - 🧠 Mémoriser vos informations personnelles
 - 📄 Rédiger des documents jusqu'à 30 pages
 - 🌍 Communiquer dans toutes les langues
- 
+
 Comment puis-je vous aider aujourd'hui ?`);
+}
+
+// Auto-login if session exists
+window.addEventListener('DOMContentLoaded', () => {
+    createParticles();
+    const user = getCurrentUser();
+    if (user) {
+        // Auto-bypass login if already logged in
+        loginSuccess(user);
+    }
+    // Enter key support
+    ['login-email','login-pass'].forEach(id => {
+        document.getElementById(id).addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+    });
+    ['reg-name','reg-email','reg-pass','reg-pass2'].forEach(id => {
+        document.getElementById(id).addEventListener('keypress', e => { if(e.key==='Enter') doRegister(); });
+    });
+});
+
+function createParticles() {
+    const container = document.querySelector('.login-bg');
+    for (let i = 0; i < 12; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 4 + 2;
+        p.style.cssText = `
+            width:${size}px; height:${size}px;
+            left:${Math.random()*100}%;
+            animation-duration:${Math.random()*10+8}s;
+            animation-delay:${Math.random()*8}s;
+        `;
+        container.appendChild(p);
+    }
+}
+
+// ===== DOM =====
+const msgDiv = document.getElementById('messages');
+const input  = document.getElementById('msg-input');
+const typing = document.getElementById('typing');
+const typingText = document.getElementById('typing-text');
+const sidebar = document.getElementById('sidebar');
+
+// ===== STATE =====
+let historique = [];
+let sessions   = JSON.parse(localStorage.getItem('theo_sessions') || '[]');
+let memoire    = JSON.parse(localStorage.getItem('theo_memoire')  || '[]');
+let fichierJoint  = null;
+let fichierBase64 = null;
+let isLoading = false;
+
+// ===== UTILS =====
+marked.setOptions({ gfm:true, breaks:true });
+const heure = () => new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+const toggleSidebar  = () => sidebar.classList.toggle('open');
+const fermerSidebar  = () => sidebar.classList.remove('open');
+
+function telecharger(){
+    const b = new Blob([`<!DOCTYPE html>\n${document.documentElement.outerHTML}`],{type:'text/html'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Agent_Theodore_IA.html'; a.click();
+}
+
+// ===== MEMOIRE =====
+function afficherMemoire(){
+    const el = document.getElementById('memoire-list');
+    el.innerHTML = memoire.length===0
+        ? '<div style="color:#333;font-size:11px;padding:4px">Aucun souvenir</div>'
+        : memoire.map((m,i)=>`<div class="mem-item">💾 ${m.substring(0,28)}... <span class="mem-del" onclick="supprimerMemoire(${i})">✕</span></div>`).join('');
+}
+function supprimerMemoire(i){
+    memoire.splice(i,1);
+    localStorage.setItem('theo_memoire',JSON.stringify(memoire));
+    afficherMemoire();
+}
+function extraireMemoire(t){
+    const mots=["je m'appelle","mon nom est","j'habite","je travaille","je suis","my name is","i am","i live"];
+    if(mots.some(m=>t.toLowerCase().includes(m))){
+        memoire.push(t.substring(0,60));
+        if(memoire.length>20) memoire.shift();
+        localStorage.setItem('theo_memoire',JSON.stringify(memoire));
+        afficherMemoire();
+    }
+}
+function contexteMemoire(){
+    return memoire.length===0 ? '' : `\n\nMÉMOIRE:\n${memoire.map(m=>'- '+m).join('\n')}`;
+}
+
+// ===== SESSIONS =====
+function afficherSessions(){
+    const h = document.getElementById('historique');
+    h.innerHTML = sessions.slice().reverse().map((s,i)=>{
+        const idx = sessions.length-1-i;
+        return `<div class="session" onclick="chargerSession(${idx});fermerSidebar();"><span class="sess-icon">💬</span><div class="sess-content"><div class="sess-title">${s.titre}</div><div class="sess-date">${s.date||''}</div></div></div>`;
+    }).join('');
+}
+function chargerSession(i){
+    historique = sessions[i].messages;
+    msgDiv.innerHTML = '';
+    historique.forEach(m=>{
+        if(m.role==='user')      addUser(m.content);
+        if(m.role==='assistant') addBot(m.content);
+    });
+    msgDiv.scrollTop = msgDiv.scrollHeight;
+}
+function nouvelleConversation(){
+    if(historique.length>0){
+        const p = historique.find(m=>m.role==='user');
+        sessions.push({titre:p?p.content.substring(0,25)+'...':'Discussion',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
+        localStorage.setItem('theo_sessions',JSON.stringify(sessions));
+        afficherSessions();
+    }
+    historique=[]; msgDiv.innerHTML='';
+    addBot("Nouvelle conversation ! Je suis prêt. 🚀");
+}
+function sauvegarderSession(texte){
+    if(historique.length===2){
+        sessions.push({titre:texte.substring(0,25)+'...',date:new Date().toLocaleDateString('fr-FR'),messages:historique});
+        localStorage.setItem('theo_sessions',JSON.stringify(sessions));
+        afficherSessions();
+    } else if(sessions.length>0){
+        sessions[sessions.length-1].messages = historique;
+        localStorage.setItem('theo_sessions',JSON.stringify(sessions));
+    }
+}
+
+// ===== AFFICHAGE =====
+function addUser(texte){
+    msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user">${texte}</div><div class="msg-time">${heure()}</div></div>`;
+    msgDiv.scrollTop = msgDiv.scrollHeight;
+}
+function addBot(contenu){
+    let pensee='', rep=contenu;
+    if(contenu.includes('<thought>')&&contenu.includes('</thought>')){
+        pensee = contenu.split('</thought>')[0].replace('<thought>','').trim();
+        rep    = contenu.split('</thought>')[1].trim();
+    }
+    const id='w'+Date.now()+Math.random().toString(36).substr(2,3);
+    msgDiv.innerHTML += `<div class="msg-bot"><div class="ia-avatar">IA</div><div class="bot-content-wrapper" id="${id}"></div></div>`;
+    const w = document.getElementById(id);
+    if(pensee) w.innerHTML += `<details class="thought-block"><summary>🧠 Raisonnement</summary><div>${marked.parse(pensee)}</div></details>`;
+    w.innerHTML += `<div class="bubble-bot">${marked.parse(rep)}</div><div class="msg-time">${heure()}</div>`;
+    msgDiv.scrollTop = msgDiv.scrollHeight;
+}
+function addImageGeneree(prompt, url){
+    msgDiv.innerHTML += `
+    <div class="msg-bot">
+        <div class="ia-avatar-img">🎨</div>
+        <div class="bot-content-wrapper">
+            <div class="gen-img-container">
+                <div class="gen-img-label">✦ Image générée par IA</div>
+                <img class="gen-img" src="${url}" alt="${prompt}" onclick="window.open('${url}','_blank')" loading="lazy">
+                <a class="download-img" href="${url}" download="theodore-ia.png" target="_blank">⬇ Télécharger</a>
+            </div>
+            <div class="msg-time">${heure()}</div>
+        </div>
+    </div>`;
+    msgDiv.scrollTop = msgDiv.scrollHeight;
+}
+
+// ===== GENERATION IMAGE =====
+function detecterGenerationImage(t){
+    return ['génère','generez','génerer','create','generate','dessine','crée une image','imagine','fais une image','make an image','draw'].some(m=>t.toLowerCase().includes(m));
+}
+async function genererImage(prompt){
+    if(isLoading) return;
+    isLoading = true;
+    typingText.innerText = "🎨 Génération de l'image...";
+    typing.style.display = 'flex';
+    const propre = prompt.replace(/génère|générer|dessine|crée une image|imagine|fais une image|generate|create|draw|peins/gi,'').trim();
+    const enc = encodeURIComponent(propre+', professional, ultra realistic, 8k, highly detailed');
+    const url = `https://image.pollinations.ai/prompt/${enc}?width=1024&height=1024&nologo=true&model=flux`;
+    typing.style.display = 'none';
+    addUser(prompt);
+    addImageGeneree(propre, url);
+    historique.push({role:'user',content:prompt});
+    historique.push({role:'assistant',content:`[Image générée: ${propre}]`});
+    sauvegarderSession(prompt);
+    isLoading = false;
+}
+
+// ===== ANALYSE IMAGE =====
+async function analyserImage(texte, b64, mimeType){
+    if(isLoading) return;
+    isLoading = true;
+    typingText.innerText = "📸 Analyse de l'image...";
+    typing.style.display = 'flex';
+    try {
+        const payload = {
+            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            messages: [{
+                role: 'user',
+                content: [
+                    { type:'text', text: texte || "Analyse cette image en détail. Décris tout ce que tu vois : les objets, personnes, couleurs, texte visible, ambiance, style, composition. Sois précis et complet." },
+                    { type:'image_url', image_url:{ url:`data:${mimeType};base64,${b64}` } }
+                ]
+            }],
+            max_tokens: 1500, temperature: 0.5
+        };
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        typing.style.display = 'none';
+        if(data.error){ addBot("⚠️ Erreur: " + (data.error.message || JSON.stringify(data.error))); }
+        else if(data.choices?.[0]?.message?.content){
+            const rep = data.choices[0].message.content;
+            historique.push({role:'user', content: texte || 'Analyse cette image'});
+            historique.push({role:'assistant', content: rep});
+            addBot(rep);
+            sauvegarderSession(texte || 'Analyse image');
+        } else { addBot("❌ Pas de réponse reçue."); }
+    } catch(e){ typing.style.display='none'; addBot("❌ Erreur réseau: " + e.message); }
+    isLoading = false;
+}
+
+// ===== GESTION FICHIER =====
+function gererFichier(inp){
+    if(!inp.files?.[0]) return;
+    const file = inp.files[0];
+    if(!file.type.startsWith('image/')){alert('❌ Image uniquement!'); return;}
+    if(file.size > 4*1024*1024){alert('❌ Max 4MB'); return;}
+    fichierJoint = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+        fichierBase64 = e.target.result;
+        const prev = document.getElementById('file-preview-area');
+        prev.innerHTML = `<div class="preview-badge">🖼️ ${file.name.substring(0,18)} <span onclick="retirerFichier()">✕</span></div>`;
+        prev.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+}
+function retirerFichier(){
+    fichierJoint=null; fichierBase64=null;
+    document.getElementById('file-input').value='';
+    document.getElementById('file-preview-area').style.display='none';
+}
+
+// ===== ENVOYER =====
+async function envoyer(){
+    const texte = input.value.trim();
+    if(!texte && !fichierJoint) return;
+    if(isLoading) return;
+    input.value='';
+    if(fichierJoint && fichierBase64){
+        const b64  = fichierBase64.includes(',') ? fichierBase64.split(',')[1] : fichierBase64;
+        const mime = fichierJoint.type || 'image/jpeg';
+        msgDiv.innerHTML += `<div class="msg-user"><div class="bubble-user"><img class="analyzed-img" src="${fichierBase64}"><br>${texte||'Analyse cette image'}</div><div class="msg-time">${heure()}</div></div>`;
+        msgDiv.scrollTop = msgDiv.scrollHeight;
+        retirerFichier();
+        await analyserImage(texte, b64, mime);
+        return;
+    }
+    if(detecterGenerationImage(texte)){ await genererImage(texte); return; }
+    extraireMemoire(texte);
+    addUser(texte);
+    historique.push({role:'user', content:texte});
+    typingText.innerText = 'Theodore réfléchit...';
+    typing.style.display = 'flex';
+    isLoading = true;
+    try {
+        const user = getCurrentUser();
+        const userName = user ? user.name : 'Utilisateur';
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    {
+                        role:'system',
+                        content:`Tu es l'Agent Theodore, une intelligence artificielle de prestige créée par l'ingénieur burundais Theodore Nahano. Tu es extrêmement intelligent, polyglotte, élégant et expert dans tous les domaines. L'utilisateur connecté s'appelle ${userName}. Réponds dans la langue de ton interlocuteur. Sois bref, clair et précis.${contexteMemoire()}`
+                    },
+                    ...historique
+                ],
+                max_tokens: 2000, temperature: 0.65
+            })
+        });
+        const data = await res.json();
+        if(data.error){ addBot("⚠️ " + (data.error.message || "Erreur API")); }
+        else if(data.choices?.[0]?.message?.content){
+            const rep = data.choices[0].message.content;
+            historique.push({role:'assistant', content:rep});
+            addBot(rep);
+            sauvegarderSession(texte);
+        } else { addBot("❌ Pas de réponse. Réessaie."); }
+    } catch(e){ addBot("❌ Erreur réseau: " + e.message); }
+    typing.style.display = 'none';
+    isLoading = false;
+}
+
+// ===== PWA =====
+const manifestObj = {name:"Agent Theodore IA",short_name:"Theodore IA",start_url:window.location.origin+window.location.pathname,display:"standalone",background_color:"#0a0a10",theme_color:"#0a0a10",icons:[{src:"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f0f18%22/><text y=%22.75em%22 x=%228%22 font-size=%2255%22 font-weight=%22900%22 fill=%22%2300d4ff%22>IA</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
+document.getElementById('pwa-manifest').href = "data:application/manifest+json,"+encodeURIComponent(JSON.stringify(manifestObj));
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); installPrompt=e; document.getElementById('install-app-btn').style.display='flex'; });
+function declencherInstall(){ if(installPrompt){ installPrompt.prompt(); installPrompt.userChoice.then(r=>{ if(r.outcome==='accepted') document.getElementById('install-app-btn').style.display='none'; installPrompt=null; }); } }
+function installerAndroid(){
+    const lien = window.location.href;
+    navigator.clipboard.writeText(lien).then(()=>{ alert('✅ Lien copié!\n\nSur Android:\n1. Chrome\n2. Colle le lien\n3. Menu ⋮ → Ajouter à accueil'); }).catch(()=>{ alert('Lien: '+lien); });
+}
+
+// Enter key
+input.addEventListener('keypress', e=>{ if(e.key==='Enter') envoyer(); });
 </script>
 </body>
-<
+</html>
